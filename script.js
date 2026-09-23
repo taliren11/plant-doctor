@@ -1,29 +1,73 @@
 // ==========================================
-// 🌱 PLANT DOCTOR - AI DISEASE DETECTION
+// 🌱 PLANT DOCTOR
+// REAL CAMERA + FILE UPLOAD + AI DETECTION
 // ==========================================
 
-// Your Teachable Machine model
+
+// ==========================================
+// TEACHABLE MACHINE MODEL
+// ==========================================
+
 const MODEL_URL =
     "https://teachablemachine.withgoogle.com/models/bjMLKRiPa/";
 
+
 // ==========================================
-// GET HTML ELEMENTS
+// HTML ELEMENTS
 // ==========================================
 
-const cameraInput = document.getElementById("cameraInput");
-const imageInput = document.getElementById("imageInput");
+const cameraButton =
+    document.getElementById("cameraButton");
 
-const preview = document.getElementById("preview");
-const analyzeButton = document.getElementById("analyzeButton");
+const imageInput =
+    document.getElementById("imageInput");
 
-const loading = document.getElementById("loading");
-const result = document.getElementById("result");
+const preview =
+    document.getElementById("preview");
 
-const disease = document.getElementById("disease");
-const confidence = document.getElementById("confidence");
+const analyzeButton =
+    document.getElementById("analyzeButton");
 
-const treatment = document.getElementById("treatment");
-const prevention = document.getElementById("prevention");
+const loading =
+    document.getElementById("loading");
+
+const result =
+    document.getElementById("result");
+
+const disease =
+    document.getElementById("disease");
+
+const confidence =
+    document.getElementById("confidence");
+
+const treatment =
+    document.getElementById("treatment");
+
+const prevention =
+    document.getElementById("prevention");
+
+
+// ==========================================
+// CAMERA ELEMENTS
+// ==========================================
+
+const cameraModal =
+    document.getElementById("cameraModal");
+
+const cameraVideo =
+    document.getElementById("cameraVideo");
+
+const cameraCanvas =
+    document.getElementById("cameraCanvas");
+
+const captureButton =
+    document.getElementById("captureButton");
+
+const switchCameraButton =
+    document.getElementById("switchCameraButton");
+
+const closeCameraButton =
+    document.getElementById("closeCameraButton");
 
 
 // ==========================================
@@ -31,33 +75,44 @@ const prevention = document.getElementById("prevention");
 // ==========================================
 
 let model = null;
+
 let selectedImage = null;
+
+let cameraStream = null;
+
+let currentCamera = "environment";
 
 
 // ==========================================
-// LOAD THE AI MODEL
+// LOAD AI MODEL
 // ==========================================
 
 async function loadModel() {
 
     try {
 
-        const modelURL = MODEL_URL + "model.json";
-        const metadataURL = MODEL_URL + "metadata.json";
+        const modelURL =
+            MODEL_URL + "model.json";
+
+        const metadataURL =
+            MODEL_URL + "metadata.json";
+
 
         model = await tmImage.load(
             modelURL,
             metadataURL
         );
 
-        console.log("✅ AI model loaded successfully.");
 
-        analyzeButton.disabled = true;
+        console.log(
+            "✅ AI model loaded successfully."
+        );
+
 
     } catch (error) {
 
         console.error(
-            "❌ Could not load AI model:",
+            "❌ AI model loading error:",
             error
         );
 
@@ -68,89 +123,304 @@ async function loadModel() {
 }
 
 
-// Start loading the model
 loadModel();
 
 
 // ==========================================
-// HANDLE IMAGE
+// 📷 OPEN REAL CAMERA
 // ==========================================
 
-function handleImage(file) {
+cameraButton.addEventListener(
+    "click",
+    async function() {
 
-    if (!file) {
-        return;
-    }
+        await openCamera();
 
-
-    // Check that the file is an image
-    if (!file.type.startsWith("image/")) {
-
-        alert(
-            "Please select an image file."
-        );
-
-        return;
-    }
-
-
-    // Create a file reader
-    const reader = new FileReader();
-
-
-    reader.onload = function(event) {
-
-        // Put image into preview
-        preview.src = event.target.result;
-
-        // Show preview
-        preview.style.display = "block";
-
-
-        preview.onload = function() {
-
-            // Save selected image
-            selectedImage = preview;
-
-
-            // Enable analyze button
-            analyzeButton.disabled = false;
-
-
-            // Hide old result
-            result.style.display = "none";
-
-
-            console.log(
-                "✅ Image ready for analysis."
-            );
-        };
-    };
-
-
-    // Read the image
-    reader.readAsDataURL(file);
-}
-
-
-// ==========================================
-// 📷 TAKE A PICTURE
-// ==========================================
-
-cameraInput.addEventListener(
-    "change",
-    function(event) {
-
-        const file =
-            event.target.files[0];
-
-        handleImage(file);
     }
 );
 
 
 // ==========================================
-// 📁 UPLOAD A FILE
+// START CAMERA
+// ==========================================
+
+async function openCamera() {
+
+    try {
+
+        // Stop any previous camera
+        stopCamera();
+
+
+        // Show camera interface
+        cameraModal.style.display = "flex";
+
+
+        // Ask browser for camera
+        cameraStream =
+            await navigator.mediaDevices.getUserMedia({
+
+                video: {
+                    facingMode: {
+                        ideal: currentCamera
+                    },
+
+                    width: {
+                        ideal: 1280
+                    },
+
+                    height: {
+                        ideal: 720
+                    }
+                },
+
+                audio: false
+
+            });
+
+
+        // Put camera stream into video
+        cameraVideo.srcObject =
+            cameraStream;
+
+
+        await cameraVideo.play();
+
+
+        console.log(
+            "📷 Camera started."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Camera error:",
+            error
+        );
+
+
+        cameraModal.style.display =
+            "none";
+
+
+        if (
+            error.name ===
+            "NotAllowedError"
+        ) {
+
+            alert(
+                "Camera permission was denied. Please allow camera access in your browser settings and try again."
+            );
+
+        } else if (
+            error.name ===
+            "NotFoundError"
+        ) {
+
+            alert(
+                "No camera was found on this device."
+            );
+
+        } else {
+
+            alert(
+                "Could not open the camera. Please make sure your browser has permission to use it."
+            );
+        }
+    }
+}
+
+
+// ==========================================
+// 📸 CAPTURE PHOTO
+// ==========================================
+
+captureButton.addEventListener(
+    "click",
+    function() {
+
+        if (!cameraStream) {
+
+            alert(
+                "The camera is not currently open."
+            );
+
+            return;
+        }
+
+
+        // Get camera dimensions
+        const width =
+            cameraVideo.videoWidth;
+
+        const height =
+            cameraVideo.videoHeight;
+
+
+        if (
+            width === 0 ||
+            height === 0
+        ) {
+
+            alert(
+                "The camera is still starting. Please wait a moment and try again."
+            );
+
+            return;
+        }
+
+
+        // Set canvas size
+        cameraCanvas.width =
+            width;
+
+        cameraCanvas.height =
+            height;
+
+
+        // Draw current camera frame
+        const context =
+            cameraCanvas.getContext("2d");
+
+
+        context.drawImage(
+            cameraVideo,
+            0,
+            0,
+            width,
+            height
+        );
+
+
+        // Convert captured image to data URL
+        const imageData =
+            cameraCanvas.toDataURL(
+                "image/jpeg",
+                0.9
+            );
+
+
+        // Put captured image into preview
+        preview.src =
+            imageData;
+
+
+        preview.style.display =
+            "block";
+
+
+        // Save image for AI
+        selectedImage =
+            preview;
+
+
+        // Close camera
+        stopCamera();
+
+
+        cameraModal.style.display =
+            "none";
+
+
+        // Enable analysis
+        analyzeButton.disabled =
+            false;
+
+
+        // Remove previous result
+        result.style.display =
+            "none";
+
+
+        console.log(
+            "📸 Photo captured successfully."
+        );
+    }
+);
+
+
+// ==========================================
+// 🔄 SWITCH CAMERA
+// ==========================================
+
+switchCameraButton.addEventListener(
+    "click",
+    async function() {
+
+        if (!cameraStream) {
+            return;
+        }
+
+
+        if (
+            currentCamera ===
+            "environment"
+        ) {
+
+            currentCamera =
+                "user";
+
+        } else {
+
+            currentCamera =
+                "environment";
+        }
+
+
+        await openCamera();
+
+    }
+);
+
+
+// ==========================================
+// ✕ CLOSE CAMERA
+// ==========================================
+
+closeCameraButton.addEventListener(
+    "click",
+    function() {
+
+        stopCamera();
+
+        cameraModal.style.display =
+            "none";
+
+    }
+);
+
+
+// ==========================================
+// STOP CAMERA
+// ==========================================
+
+function stopCamera() {
+
+    if (cameraStream) {
+
+        cameraStream
+            .getTracks()
+            .forEach(
+                function(track) {
+
+                    track.stop();
+
+                }
+            );
+
+
+        cameraStream = null;
+    }
+
+
+    cameraVideo.srcObject =
+        null;
+}
+
+
+// ==========================================
+// 📁 FILE UPLOAD
 // ==========================================
 
 imageInput.addEventListener(
@@ -160,9 +430,78 @@ imageInput.addEventListener(
         const file =
             event.target.files[0];
 
+
         handleImage(file);
+
     }
 );
+
+
+// ==========================================
+// HANDLE UPLOADED IMAGE
+// ==========================================
+
+function handleImage(file) {
+
+    if (!file) {
+        return;
+    }
+
+
+    // Make sure it is an image
+    if (
+        !file.type.startsWith(
+            "image/"
+        )
+    ) {
+
+        alert(
+            "Please select an image file."
+        );
+
+        return;
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(event) {
+
+            preview.src =
+                event.target.result;
+
+
+            preview.style.display =
+                "block";
+
+
+            preview.onload =
+                function() {
+
+                    selectedImage =
+                        preview;
+
+
+                    analyzeButton.disabled =
+                        false;
+
+
+                    result.style.display =
+                        "none";
+
+
+                    console.log(
+                        "📁 Image uploaded successfully."
+                    );
+                };
+        };
+
+
+    reader.readAsDataURL(file);
+}
 
 
 // ==========================================
@@ -174,7 +513,6 @@ analyzeButton.addEventListener(
     async function() {
 
 
-        // Make sure there is an image
         if (!selectedImage) {
 
             alert(
@@ -185,7 +523,6 @@ analyzeButton.addEventListener(
         }
 
 
-        // Make sure model has loaded
         if (!model) {
 
             alert(
@@ -196,32 +533,37 @@ analyzeButton.addEventListener(
         }
 
 
-        // Show loading message
-        loading.style.display = "block";
+        // Show loading
+        loading.style.display =
+            "block";
 
 
-        // Hide previous result
-        result.style.display = "none";
+        // Hide old result
+        result.style.display =
+            "none";
 
 
-        // Disable button while analyzing
-        analyzeButton.disabled = true;
+        // Disable button
+        analyzeButton.disabled =
+            true;
 
 
         try {
 
-            // Ask AI to analyze image
+            // Get predictions
             const predictions =
-                await model.predict(selectedImage);
+                await model.predict(
+                    selectedImage
+                );
 
 
             console.log(
-                "Predictions:",
+                "AI predictions:",
                 predictions
             );
 
 
-            // Find prediction with highest confidence
+            // Find highest prediction
             let highestPrediction =
                 predictions[0];
 
@@ -233,8 +575,10 @@ analyzeButton.addEventListener(
             ) {
 
                 if (
-                    predictions[i].probability >
-                    highestPrediction.probability
+                    predictions[i]
+                        .probability >
+                    highestPrediction
+                        .probability
                 ) {
 
                     highestPrediction =
@@ -243,29 +587,33 @@ analyzeButton.addEventListener(
             }
 
 
-            // Get disease name
+            // Disease
             const predictedDisease =
                 highestPrediction.className;
 
 
-            // Get confidence
+            // Confidence
             const predictedConfidence =
-                highestPrediction.probability * 100;
+                highestPrediction
+                    .probability * 100;
 
 
-            // Show disease
+            // Display disease
             disease.textContent =
                 predictedDisease;
 
 
-            // Show confidence
+            // Display confidence
             confidence.textContent =
-                predictedConfidence.toFixed(1) + "%";
+                predictedConfidence
+                    .toFixed(1) + "%";
 
 
-            // Get treatment and prevention
+            // Get advice
             const advice =
-                getAdvice(predictedDisease);
+                getAdvice(
+                    predictedDisease
+                );
 
 
             treatment.textContent =
@@ -276,8 +624,9 @@ analyzeButton.addEventListener(
                 advice.prevention;
 
 
-            // Show results
-            result.style.display = "block";
+            // Show result
+            result.style.display =
+                "block";
 
 
         } catch (error) {
@@ -295,13 +644,14 @@ analyzeButton.addEventListener(
 
         } finally {
 
-            // Hide loading
-            loading.style.display = "none";
+            loading.style.display =
+                "none";
 
 
-            // Enable analyze button
-            analyzeButton.disabled = false;
+            analyzeButton.disabled =
+                false;
         }
+
     }
 );
 
@@ -331,6 +681,7 @@ function getAdvice(diseaseName) {
 
             prevention:
                 "Give plants enough spacing, provide good sunlight and air circulation, avoid excessive nitrogen fertilizer, and water near the soil rather than directly on the leaves. Check plants regularly for white powdery growth."
+
         };
     }
 
@@ -350,6 +701,7 @@ function getAdvice(diseaseName) {
 
             prevention:
                 "Avoid overcrowding plants, provide good ventilation, water at the base of the plant, and remove infected plant material. Regularly inspect the undersides of leaves for early signs of infection."
+
         };
     }
 
@@ -370,6 +722,7 @@ function getAdvice(diseaseName) {
 
             prevention:
                 "Inspect plants regularly for pests, keep weeds under control, maintain consistent watering, avoid plant stress, and keep infected or heavily infested plant material away from healthy plants."
+
         };
     }
 
@@ -390,12 +743,13 @@ function getAdvice(diseaseName) {
 
             prevention:
                 "Keep leaves dry, water at the base of the plant, provide good spacing and air circulation, remove fallen infected leaves, and regularly inspect plants for new spots."
+
         };
     }
 
 
     // ======================================
-    // HEALTHY PLANT
+    // HEALTHY
     // ======================================
 
     if (
@@ -409,6 +763,7 @@ function getAdvice(diseaseName) {
 
             prevention:
                 "Maintain good sunlight, appropriate watering, adequate nutrition and good air circulation. Inspect leaves regularly so that any disease or pest problem can be detected early."
+
         };
     }
 
@@ -424,5 +779,20 @@ function getAdvice(diseaseName) {
 
         prevention:
             "Maintain good air circulation, avoid unnecessary leaf wetness, remove infected plant material and regularly inspect your plants."
+
     };
 }
+
+
+// ==========================================
+// CLEAN UP CAMERA IF PAGE IS CLOSED
+// ==========================================
+
+window.addEventListener(
+    "beforeunload",
+    function() {
+
+        stopCamera();
+
+    }
+);
