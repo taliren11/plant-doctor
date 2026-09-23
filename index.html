@@ -1,59 +1,97 @@
-﻿
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Plant Doctor 🌱</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
 
 <body>
 
     <div class="container">
 
-        <div class="header">
-            <div class="logo">🌱</div>
-            <h1>Plant Doctor</h1>
-            <p>AI-powered plant disease detection</p>
+        <h1>🌱 Plant Doctor</h1>
+
+        <p>
+            Take a picture or choose a picture of a plant leaf
+            to check for diseases.
+        </p>
+
+        <div class="upload-options">
+
+            <label
+                for="cameraInput"
+                class="upload-button"
+            >
+                📷 Take a Picture
+            </label>
+
+            <input
+                type="file"
+                id="cameraInput"
+                accept="image/*"
+                capture="environment"
+                hidden
+            >
+
+            <label
+                for="galleryInput"
+                class="upload-button"
+            >
+                🖼️ Choose from Gallery
+            </label>
+
+            <input
+                type="file"
+                id="galleryInput"
+                accept="image/*"
+                hidden
+            >
+
         </div>
 
-        <div class="upload-box">
-            <h2>📷 Upload a Leaf</h2>
+        <br>
 
-            <p>
-                Take a clear picture of a plant leaf and upload it
-                to identify possible diseases.
-            </p>
+        <img
+            id="preview"
+            width="300"
+            alt="Selected plant"
+            style="display: none;"
+        >
 
-            <input type="file" id="imageInput" accept="image/*">
+        <br><br>
 
-            <img id="preview" alt="Leaf preview">
+        <button id="analyzeButton">
+            🔍 Analyze Plant
+        </button>
 
-            <button id="analyzeButton">
-                🔍 Analyze Plant
-            </button>
-        </div>
-
-        <div class="result-box">
-
-            <h2>🧠 Diagnosis</h2>
-
-            <div id="result">
-                Upload a leaf image to begin.
-            </div>
-
+        <div id="result">
+            ⏳ Loading Plant Doctor AI...
         </div>
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js">
+    </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js">
+    </script>
 
     <script src="script.js"></script>
 
 </body>
+
 </html>
