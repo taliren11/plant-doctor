@@ -1,135 +1,99 @@
-
-* {
-    box-sizing: border-box;
-}
-
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-    min-height: 100vh;
-    padding: 40px 20px;
-    color: #263238;
+    background: #e8f5e9;
+    text-align: center;
+    padding-top: 50px;
+    margin: 0;
 }
 
 .container {
-    width: 600px;
-    max-width: 100%;
+    background: white;
+    width: 500px;
+    max-width: 90%;
     margin: auto;
-}
-
-.header {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.logo {
-    font-size: 55px;
+    padding: 30px;
+    border-radius: 20px;
+    box-sizing: border-box;
 }
 
 h1 {
-    margin: 5px 0;
-    color: #1b5e20;
-    font-size: 38px;
-}
-
-.header p {
-    color: #4f6350;
-    font-size: 17px;
-}
-
-.upload-box,
-.result-box {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-}
-
-h2 {
     color: #2e7d32;
-    margin-top: 0;
 }
 
-.upload-box p {
-    color: #607d63;
-    line-height: 1.5;
+p {
+    font-size: 16px;
 }
 
-input[type="file"] {
-    width: 100%;
-    padding: 12px;
-    border: 2px dashed #81c784;
-    border-radius: 10px;
-    background: #f1f8e9;
-    margin: 15px 0;
+.upload-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    margin-top: 20px;
 }
 
-#preview {
-    display: none;
-    width: 100%;
-    max-height: 350px;
-    object-fit: contain;
-    border-radius: 15px;
-    margin: 15px 0;
+.upload-button {
+    display: block;
+    background: #2e7d32;
+    color: white;
+    padding: 14px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 220px;
+    box-sizing: border-box;
+}
+
+.upload-button:hover {
+    background: #1b5e20;
 }
 
 button {
-    width: 100%;
     background: #2e7d32;
     color: white;
     border: none;
-    padding: 15px;
-    border-radius: 10px;
+    padding: 12px 25px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 17px;
-    font-weight: bold;
-    margin-top: 10px;
+    font-size: 16px;
 }
 
 button:hover {
     background: #1b5e20;
 }
 
-#result {
-    background: #f1f8e9;
-    padding: 20px;
-    border-radius: 12px;
-    line-height: 1.7;
-}
-
-.diagnosis {
-    font-size: 25px;
-    font-weight: bold;
-    color: #1b5e20;
-}
-
-.confidence {
-    font-size: 18px;
-    color: #455a64;
-}
-
-.advice {
-    margin-top: 15px;
-    padding: 15px;
-    background: white;
+#preview {
+    max-width: 100%;
+    height: auto;
     border-radius: 10px;
-    border-left: 5px solid #66bb6a;
+    margin-top: 10px;
 }
 
-@media (max-width: 600px) {
+#result {
+    margin-top: 25px;
+    text-align: left;
+    line-height: 1.6;
+}
 
-    body {
-        padding: 20px 10px;
-    }
+.diagnosis,
+.advice,
+.predictions {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    background: #f1f8f2;
+}
 
-    h1 {
-        font-size: 30px;
-    }
+.diagnosis h2,
+.advice h2 {
+    color: #2e7d32;
+}
 
-    .upload-box,
-    .result-box {
-        padding: 20px;
-    }
+.advice h3,
+.predictions h3 {
+    color: #388e3c;
+}
+
+li {
+    margin-bottom: 8px;
 }
