@@ -1,735 +1,324 @@
-// ==========================================
-// 🌱 PLANT DOCTOR
-// REAL CAMERA + FILE UPLOAD + AI DETECTION
-// ==========================================
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/bjMLKRiPa/";
 
-
-// ==========================================
-// TEACHABLE MACHINE MODEL
-// ==========================================
-
-const MODEL_URL =
-    "https://teachablemachine.withgoogle.com/models/bjMLKRiPa/";
-
-
-// ==========================================
-// HTML ELEMENTS
-// ==========================================
-
-const cameraButton =
-    document.getElementById("cameraButton");
-
-const imageInput =
-    document.getElementById("imageInput");
-
-const preview =
-    document.getElementById("preview");
-
-const analyzeButton =
-    document.getElementById("analyzeButton");
-
-const loading =
-    document.getElementById("loading");
-
-const result =
-    document.getElementById("result");
-
-const disease =
-    document.getElementById("disease");
-
-const confidence =
-    document.getElementById("confidence");
-
-const treatment =
-    document.getElementById("treatment");
-
-const prevention =
-    document.getElementById("prevention");
-
-
-// ==========================================
-// CAMERA ELEMENTS
-// ==========================================
-
-const cameraModal =
-    document.getElementById("cameraModal");
-
-const cameraVideo =
-    document.getElementById("cameraVideo");
-
-const cameraCanvas =
-    document.getElementById("cameraCanvas");
-
-const captureButton =
-    document.getElementById("captureButton");
-
-const switchCameraButton =
-    document.getElementById("switchCameraButton");
-
-const closeCameraButton =
-    document.getElementById("closeCameraButton");
-
-
-// ==========================================
-// VARIABLES
-// ==========================================
-
-let model = null;
-
+let model;
 let selectedImage = null;
-
 let cameraStream = null;
-
 let currentCamera = "environment";
 
+// Main elements
+const cameraButton = document.getElementById("cameraButton");
+const imageInput = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+const analyzeButton = document.getElementById("analyzeButton");
+const loading = document.getElementById("loading");
 
-// ==========================================
+const result = document.getElementById("result");
+const disease = document.getElementById("disease");
+const confidence = document.getElementById("confidence");
+const treatment = document.getElementById("treatment");
+const prevention = document.getElementById("prevention");
+
+// Camera elements
+const cameraModal = document.getElementById("cameraModal");
+const cameraVideo = document.getElementById("cameraVideo");
+const cameraCanvas = document.getElementById("cameraCanvas");
+const captureButton = document.getElementById("captureButton");
+const switchCameraButton = document.getElementById("switchCameraButton");
+const closeCameraButton = document.getElementById("closeCameraButton");
+
+
+// ===============================
 // LOAD AI MODEL
-// ==========================================
+// ===============================
 
 async function loadModel() {
-
     try {
-
-        const modelURL =
-            MODEL_URL + "model.json";
-
-        const metadataURL =
-            MODEL_URL + "metadata.json";
-
-
         model = await tmImage.load(
-            modelURL,
-            metadataURL
+            MODEL_URL + "model.json",
+            MODEL_URL + "metadata.json"
         );
 
-
-        console.log(
-            "✅ AI model loaded successfully."
-        );
-
-
+        console.log("Plant Doctor AI model loaded.");
     } catch (error) {
-
-        console.error(
-            "❌ AI model loading error:",
-            error
-        );
-
-        alert(
-            "The AI model could not be loaded. Please check your internet connection."
-        );
+        console.error("Could not load AI model:", error);
+        alert("The AI model could not be loaded. Please check your internet connection.");
     }
 }
-
 
 loadModel();
 
 
-// ==========================================
-// 📷 OPEN REAL CAMERA
-// ==========================================
+// ===============================
+// OPEN CAMERA
+// ===============================
 
-cameraButton.addEventListener(
-    "click",
-    async function() {
-
-        await openCamera();
-
-    }
-);
-
-
-// ==========================================
-// START CAMERA
-// ==========================================
+cameraButton.addEventListener("click", openCamera);
 
 async function openCamera() {
-
     try {
-
-        // Stop any previous camera
         stopCamera();
 
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Your browser does not support camera access.");
+            return;
+        }
 
-        // Show camera interface
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: {
+                    ideal: currentCamera
+                },
+                width: {
+                    ideal: 1280
+                },
+                height: {
+                    ideal: 720
+                }
+            },
+            audio: false
+        });
+
+        cameraVideo.srcObject = cameraStream;
+
         cameraModal.style.display = "flex";
 
-
-        // Ask browser for camera
-        cameraStream =
-            await navigator.mediaDevices.getUserMedia({
-
-                video: {
-                    facingMode: {
-                        ideal: currentCamera
-                    },
-
-                    width: {
-                        ideal: 1280
-                    },
-
-                    height: {
-                        ideal: 720
-                    }
-                },
-
-                audio: false
-
-            });
-
-
-        // Put camera stream into video
-        cameraVideo.srcObject =
-            cameraStream;
-
-
-        await cameraVideo.play();
-
-
-        console.log(
-            "📷 Camera started."
-        );
-
-
     } catch (error) {
+        console.error("Camera error:", error);
 
-        console.error(
-            "Camera error:",
-            error
+        alert(
+            "We couldn't access your camera. Please allow camera permission and try again."
         );
 
-
-        cameraModal.style.display =
-            "none";
-
-
-        if (
-            error.name ===
-            "NotAllowedError"
-        ) {
-
-            alert(
-                "Camera permission was denied. Please allow camera access in your browser settings and try again."
-            );
-
-        } else if (
-            error.name ===
-            "NotFoundError"
-        ) {
-
-            alert(
-                "No camera was found on this device."
-            );
-
-        } else {
-
-            alert(
-                "Could not open the camera. Please make sure your browser has permission to use it."
-            );
-        }
+        stopCamera();
+        cameraModal.style.display = "none";
     }
 }
 
 
-// ==========================================
-// 📸 CAPTURE PHOTO
-// ==========================================
+// ===============================
+// CAPTURE PHOTO
+// ===============================
 
-captureButton.addEventListener(
-    "click",
-    function() {
+captureButton.addEventListener("click", () => {
 
-        if (!cameraStream) {
-
-            alert(
-                "The camera is not currently open."
-            );
-
-            return;
-        }
-
-
-        // Get camera dimensions
-        const width =
-            cameraVideo.videoWidth;
-
-        const height =
-            cameraVideo.videoHeight;
-
-
-        if (
-            width === 0 ||
-            height === 0
-        ) {
-
-            alert(
-                "The camera is still starting. Please wait a moment and try again."
-            );
-
-            return;
-        }
-
-
-        // Set canvas size
-        cameraCanvas.width =
-            width;
-
-        cameraCanvas.height =
-            height;
-
-
-        // Draw current camera frame
-        const context =
-            cameraCanvas.getContext("2d");
-
-
-        context.drawImage(
-            cameraVideo,
-            0,
-            0,
-            width,
-            height
-        );
-
-
-        // Convert captured image to data URL
-        const imageData =
-            cameraCanvas.toDataURL(
-                "image/jpeg",
-                0.9
-            );
-
-
-        // Put captured image into preview
-        preview.src =
-            imageData;
-
-
-        preview.style.display =
-            "block";
-
-
-        // Save image for AI
-        selectedImage =
-            preview;
-
-
-        // Close camera
-        stopCamera();
-
-
-        cameraModal.style.display =
-            "none";
-
-
-        // Enable analysis
-        analyzeButton.disabled =
-            false;
-
-
-        // Remove previous result
-        result.style.display =
-            "none";
-
-
-        console.log(
-            "📸 Photo captured successfully."
-        );
+    if (!cameraStream) {
+        return;
     }
-);
+
+    cameraCanvas.width = cameraVideo.videoWidth;
+    cameraCanvas.height = cameraVideo.videoHeight;
+
+    const context = cameraCanvas.getContext("2d");
+
+    context.drawImage(
+        cameraVideo,
+        0,
+        0,
+        cameraCanvas.width,
+        cameraCanvas.height
+    );
+
+    const imageData = cameraCanvas.toDataURL("image/jpeg", 0.9);
+
+    preview.src = imageData;
+    preview.style.display = "block";
+
+    selectedImage = preview;
+
+    stopCamera();
+    cameraModal.style.display = "none";
+
+    analyzeButton.disabled = false;
+
+    result.style.display = "none";
+});
 
 
-// ==========================================
-// 🔄 SWITCH CAMERA
-// ==========================================
+// ===============================
+// SWITCH CAMERA
+// ===============================
 
-switchCameraButton.addEventListener(
-    "click",
-    async function() {
+switchCameraButton.addEventListener("click", async () => {
 
-        if (!cameraStream) {
-            return;
-        }
-
-
-        if (
-            currentCamera ===
-            "environment"
-        ) {
-
-            currentCamera =
-                "user";
-
-        } else {
-
-            currentCamera =
-                "environment";
-        }
-
-
-        await openCamera();
-
+    if (currentCamera === "environment") {
+        currentCamera = "user";
+    } else {
+        currentCamera = "environment";
     }
-);
+
+    await openCamera();
+});
 
 
-// ==========================================
-// ✕ CLOSE CAMERA
-// ==========================================
+// ===============================
+// CLOSE CAMERA
+// ===============================
 
-closeCameraButton.addEventListener(
-    "click",
-    function() {
-
-        stopCamera();
-
-        cameraModal.style.display =
-            "none";
-
-    }
-);
+closeCameraButton.addEventListener("click", () => {
+    stopCamera();
+    cameraModal.style.display = "none";
+});
 
 
-// ==========================================
+// ===============================
 // STOP CAMERA
-// ==========================================
+// ===============================
 
 function stopCamera() {
 
     if (cameraStream) {
 
-        cameraStream
-            .getTracks()
-            .forEach(
-                function(track) {
-
-                    track.stop();
-
-                }
-            );
-
+        cameraStream.getTracks().forEach(track => {
+            track.stop();
+        });
 
         cameraStream = null;
     }
 
-
-    cameraVideo.srcObject =
-        null;
+    cameraVideo.srcObject = null;
 }
 
 
-// ==========================================
-// 📁 FILE UPLOAD
-// ==========================================
+// ===============================
+// UPLOAD IMAGE
+// ===============================
 
-imageInput.addEventListener(
-    "change",
-    function(event) {
+imageInput.addEventListener("change", event => {
 
-        const file =
-            event.target.files[0];
-
-
-        handleImage(file);
-
-    }
-);
-
-
-// ==========================================
-// HANDLE UPLOADED IMAGE
-// ==========================================
-
-function handleImage(file) {
+    const file = event.target.files[0];
 
     if (!file) {
         return;
     }
 
+    const reader = new FileReader();
 
-    // Make sure it is an image
-    if (
-        !file.type.startsWith(
-            "image/"
-        )
-    ) {
+    reader.onload = function(e) {
 
-        alert(
-            "Please select an image file."
-        );
+        preview.src = e.target.result;
+        preview.style.display = "block";
 
+        selectedImage = preview;
+
+        analyzeButton.disabled = false;
+
+        result.style.display = "none";
+    };
+
+    reader.readAsDataURL(file);
+});
+
+
+// ===============================
+// ANALYZE IMAGE
+// ===============================
+
+analyzeButton.addEventListener("click", async () => {
+
+    if (!selectedImage) {
+        alert("Please take a picture or upload a leaf image first.");
         return;
     }
 
-
-    const reader =
-        new FileReader();
-
-
-    reader.onload =
-        function(event) {
-
-            preview.src =
-                event.target.result;
-
-
-            preview.style.display =
-                "block";
-
-
-            preview.onload =
-                function() {
-
-                    selectedImage =
-                        preview;
-
-
-                    analyzeButton.disabled =
-                        false;
-
-
-                    result.style.display =
-                        "none";
-
-
-                    console.log(
-                        "📁 Image uploaded successfully."
-                    );
-                };
-        };
-
-
-    reader.readAsDataURL(file);
-}
-
-
-// ==========================================
-// 🔍 ANALYZE LEAF
-// ==========================================
-
-analyzeButton.addEventListener(
-    "click",
-    async function() {
-
-
-        if (!selectedImage) {
-
-            alert(
-                "Please take a picture or upload an image first."
-            );
-
-            return;
-        }
-
-
-        if (!model) {
-
-            alert(
-                "The AI model is still loading. Please wait a moment."
-            );
-
-            return;
-        }
-
-
-        // Show loading
-        loading.style.display =
-            "block";
-
-
-        // Hide old result
-        result.style.display =
-            "none";
-
-
-        // Disable button
-        analyzeButton.disabled =
-            true;
-
-
-        try {
-
-            // Get predictions
-            const predictions =
-                await model.predict(
-                    selectedImage
-                );
-
-
-            console.log(
-                "AI predictions:",
-                predictions
-            );
-
-
-            // Find highest prediction
-            let highestPrediction =
-                predictions[0];
-
-
-            for (
-                let i = 1;
-                i < predictions.length;
-                i++
-            ) {
-
-                if (
-                    predictions[i]
-                        .probability >
-                    highestPrediction
-                        .probability
-                ) {
-
-                    highestPrediction =
-                        predictions[i];
-                }
-            }
-
-
-            // Disease
-            const predictedDisease =
-                highestPrediction.className;
-
-
-            // Confidence
-            const predictedConfidence =
-                highestPrediction
-                    .probability * 100;
-
-
-            // Display disease
-            disease.textContent =
-                predictedDisease;
-
-
-            // Display confidence
-            confidence.textContent =
-                predictedConfidence
-                    .toFixed(1) + "%";
-
-
-            // Get advice
-            const advice =
-                getAdvice(
-                    predictedDisease
-                );
-
-
-            treatment.textContent =
-                advice.treatment;
-
-
-            prevention.textContent =
-                advice.prevention;
-
-
-            // Show result
-            result.style.display =
-                "block";
-
-
-        } catch (error) {
-
-            console.error(
-                "❌ Prediction error:",
-                error
-            );
-
-
-            alert(
-                "Something went wrong while analyzing the image."
-            );
-
-
-        } finally {
-
-            loading.style.display =
-                "none";
-
-
-            analyzeButton.disabled =
-                false;
-        }
-
+    if (!model) {
+        alert("The AI model is still loading. Please wait a moment and try again.");
+        return;
     }
-);
+
+    loading.style.display = "block";
+    result.style.display = "none";
+    analyzeButton.disabled = true;
+
+    try {
+
+        const predictions = await model.predict(selectedImage);
+
+        let highestPrediction = predictions[0];
+
+        for (let i = 1; i < predictions.length; i++) {
+
+            if (
+                predictions[i].probability >
+                highestPrediction.probability
+            ) {
+                highestPrediction = predictions[i];
+            }
+        }
+
+        const predictedDisease = highestPrediction.className;
+        const predictedConfidence =
+            Math.round(highestPrediction.probability * 100);
+
+        disease.textContent = predictedDisease;
+        confidence.textContent =
+            `Confidence: ${predictedConfidence}%`;
+
+        const advice = getAdvice(predictedDisease);
+
+        treatment.textContent = advice.treatment;
+        prevention.textContent = advice.prevention;
+
+        result.style.display = "block";
+
+    } catch (error) {
+
+        console.error("Prediction error:", error);
+
+        alert(
+            "Something went wrong while analyzing the image. Please try again."
+        );
+
+    } finally {
+
+        loading.style.display = "none";
+        analyzeButton.disabled = false;
+    }
+});
 
 
-// ==========================================
-// 🌿 DISEASE ADVICE
-// ==========================================
+// ===============================
+// DISEASE ADVICE
+// ===============================
 
 function getAdvice(diseaseName) {
 
-    const name =
-        diseaseName.toLowerCase();
+    const name = diseaseName.toLowerCase();
 
-
-    // ======================================
-    // POWDERY MILDEW
-    // ======================================
-
-    if (
-        name.includes("powdery")
-    ) {
+    if (name.includes("powdery")) {
 
         return {
-
             treatment:
-                "Remove badly affected leaves and dispose of them away from healthy plants. Improve air circulation around the plant and avoid wetting the leaves when watering. A suitable fungicide may be used according to its label directions.",
+                "Remove badly affected leaves and improve air circulation around the plant. Avoid watering the leaves. A suitable fungicide or an appropriate powdery mildew treatment can help control the infection.",
 
             prevention:
-                "Give plants enough spacing, provide good sunlight and air circulation, avoid excessive nitrogen fertilizer, and water near the soil rather than directly on the leaves. Check plants regularly for white powdery growth."
-
+                "Keep plants well spaced, provide good sunlight and airflow, avoid excessive humidity, and water near the soil instead of directly on the leaves."
         };
     }
 
 
-    // ======================================
-    // DOWNY MILDEW
-    // ======================================
-
-    if (
-        name.includes("downy")
-    ) {
+    if (name.includes("downy")) {
 
         return {
-
             treatment:
-                "Remove and dispose of heavily infected leaves. Keep foliage as dry as possible and improve air circulation. Avoid overhead watering. If the disease continues to spread, use an appropriate fungicide according to the product label.",
+                "Remove infected leaves and dispose of them away from healthy plants. Improve ventilation and avoid keeping the foliage wet for long periods. A suitable fungicide may help manage the disease.",
 
             prevention:
-                "Avoid overcrowding plants, provide good ventilation, water at the base of the plant, and remove infected plant material. Regularly inspect the undersides of leaves for early signs of infection."
-
+                "Avoid overhead watering, provide good air circulation, keep leaves dry when possible, and remove infected plant material quickly."
         };
     }
 
 
-    // ======================================
-    // LEAF CURL
-    // ======================================
-
-    if (
-        name.includes("leaf curl") ||
-        name.includes("leafcurl")
-    ) {
+    if (name.includes("curl")) {
 
         return {
-
             treatment:
-                "Remove severely affected leaves and check the plant carefully for insects such as aphids, whiteflies or other sap-sucking pests. Control the pests using an appropriate method and keep the plant properly watered.",
+                "Remove severely affected leaves and check the plant carefully for pests such as aphids or whiteflies. Control insect pests using an appropriate treatment and keep the plant properly watered.",
 
             prevention:
-                "Inspect plants regularly for pests, keep weeds under control, maintain consistent watering, avoid plant stress, and keep infected or heavily infested plant material away from healthy plants."
-
+                "Regularly inspect new leaves for pests, maintain good plant nutrition and watering, remove weeds that may host pests, and keep the growing area clean."
         };
     }
 
-
-    // ======================================
-    // FUNGAL LEAF SPOT
-    // ======================================
 
     if (
         name.includes("fungal leaf spot") ||
@@ -737,62 +326,68 @@ function getAdvice(diseaseName) {
     ) {
 
         return {
-
             treatment:
-                "Remove affected leaves and dispose of them rather than leaving them near the plant. Avoid getting water on the foliage and improve air circulation. A suitable fungicide can be considered for serious infections according to its label directions.",
+                "Remove infected leaves and dispose of them safely. Avoid getting water on the foliage and improve air circulation. A suitable fungicide may help if the infection is severe.",
 
             prevention:
-                "Keep leaves dry, water at the base of the plant, provide good spacing and air circulation, remove fallen infected leaves, and regularly inspect plants for new spots."
-
+                "Water at the base of the plant, avoid overcrowding, provide good airflow, remove fallen infected leaves, and keep gardening tools clean."
         };
     }
 
 
-    // ======================================
-    // HEALTHY
-    // ======================================
-
-    if (
-        name.includes("healthy")
-    ) {
+    if (name.includes("healthy")) {
 
         return {
-
             treatment:
-                "No disease treatment is currently indicated. Continue normal plant care and monitor the plant regularly for changes.",
+                "Your plant appears healthy! Continue providing suitable sunlight, water and nutrients.",
 
             prevention:
-                "Maintain good sunlight, appropriate watering, adequate nutrition and good air circulation. Inspect leaves regularly so that any disease or pest problem can be detected early."
-
+                "Keep monitoring the leaves regularly, maintain good airflow, avoid overwatering, and remove damaged or dead plant material."
         };
     }
 
 
-    // ======================================
-    // DEFAULT
-    // ======================================
-
     return {
-
         treatment:
-            "Follow the recommended care for the detected condition and monitor the plant closely. If symptoms become worse, consult a local agricultural expert.",
+            "The condition could not be identified with complete certainty. Remove severely affected leaves and keep the plant in a clean, well-ventilated environment.",
 
         prevention:
-            "Maintain good air circulation, avoid unnecessary leaf wetness, remove infected plant material and regularly inspect your plants."
-
+            "Monitor the plant regularly, avoid overwatering, provide good airflow and sunlight, and remove infected plant material promptly."
     };
 }
 
 
-// ==========================================
-// CLEAN UP CAMERA IF PAGE IS CLOSED
-// ==========================================
+// ===============================
+// STOP CAMERA WHEN LEAVING PAGE
+// ===============================
 
-window.addEventListener(
-    "beforeunload",
-    function() {
+window.addEventListener("beforeunload", () => {
+    stopCamera();
+});
 
-        stopCamera();
 
-    }
-);
+// ===============================
+// REGISTER SERVICE WORKER
+// ===============================
+
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", () => {
+
+        navigator.serviceWorker.register("./service-worker.js")
+
+            .then(() => {
+                console.log(
+                    "Plant Doctor service worker registered successfully."
+                );
+            })
+
+            .catch(error => {
+                console.error(
+                    "Service worker registration failed:",
+                    error
+                );
+            });
+
+    });
+}
