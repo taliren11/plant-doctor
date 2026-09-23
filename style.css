@@ -1,66 +1,364 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #e8f5e9;
-    text-align: center;
-    padding-top: 50px;
+/* =========================================
+   PLANT DOCTOR - MODERN AESTHETIC DESIGN
+   ========================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+
+    background:
+        radial-gradient(circle at top left, #dff4df 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #cde8d0 0%, transparent 35%),
+        #f4faf4;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px 15px;
+
+    color: #23452b;
+}
+
+
+/* =========================================
+   MAIN CARD
+   ========================================= */
 
 .container {
-    background: white;
-    width: 500px;
-    max-width: 90%;
-    margin: auto;
-    padding: 30px;
-    border-radius: 20px;
+    width: 100%;
+    max-width: 620px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border-radius: 30px;
+
+    padding: 38px;
+
+    box-shadow:
+        0 20px 60px rgba(45, 91, 52, 0.12);
+
+    border: 1px solid rgba(82, 130, 88, 0.12);
+
+    text-align: center;
 }
+
+
+/* =========================================
+   TITLE
+   ========================================= */
 
 h1 {
-    color: #2e7d32;
+    font-size: 38px;
+    color: #237a35;
+
+    margin-bottom: 8px;
+
+    letter-spacing: -1px;
 }
 
-button {
-    background: #2e7d32;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    cursor: pointer;
+.subtitle {
+    color: #718274;
     font-size: 16px;
+    margin-bottom: 30px;
 }
 
-button:hover {
-    background: #1b5e20;
+
+/* =========================================
+   IMAGE PREVIEW
+   ========================================= */
+
+.preview-container {
+    width: 100%;
+    min-height: 240px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #edf8ed,
+            #f8fcf8
+        );
+
+    border: 2px dashed #b8d9bb;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-bottom: 22px;
+
+    overflow: hidden;
 }
 
 #preview {
-    max-width: 100%;
-    border-radius: 10px;
+    display: none;
+
+    width: 100%;
+    max-height: 360px;
+
+    object-fit: contain;
+
+    border-radius: 18px;
 }
+
+
+/* =========================================
+   UPLOAD / CAMERA BUTTONS
+   ========================================= */
+
+.upload-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    width: 48%;
+
+    padding: 15px 12px;
+
+    margin: 5px 1%;
+
+    border-radius: 15px;
+
+    background: #eef8ef;
+
+    border: 1px solid #cce5cf;
+
+    color: #28723a;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.upload-button:hover {
+    background: #e1f3e3;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 7px 18px rgba(46, 110, 55, 0.12);
+}
+
+.upload-button:active {
+    transform: scale(0.98);
+}
+
+
+/* =========================================
+   ANALYZE BUTTON
+   ========================================= */
+
+#analyzeButton {
+    width: 98%;
+
+    margin-top: 14px;
+
+    padding: 17px;
+
+    border: none;
+
+    border-radius: 16px;
+
+    background: linear-gradient(
+        135deg,
+        #2d8a3d,
+        #226d31
+    );
+
+    color: white;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 10px 22px rgba(38, 112, 50, 0.22);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+#analyzeButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 14px 28px rgba(38, 112, 50, 0.28);
+}
+
+#analyzeButton:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+#analyzeButton:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+
+/* =========================================
+   LOADING
+   ========================================= */
+
+#loading {
+    margin-top: 22px;
+
+    color: #397847;
+
+    font-weight: bold;
+
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.4;
+    }
+}
+
+
+/* =========================================
+   RESULTS
+   ========================================= */
 
 #result {
-    margin-top: 20px;
+    margin-top: 28px;
+
     text-align: left;
+
+    background: #f8fcf8;
+
+    border-radius: 22px;
+
+    padding: 25px;
+
+    border: 1px solid #dcebdd;
 }
 
-.diagnosis,
-.advice,
-.predictions {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 12px;
-    background: #f1f8f2;
+#result h2 {
+    text-align: center;
+
+    color: #237a35;
+
+    margin-bottom: 15px;
 }
 
-.diagnosis h2,
-.advice h2 {
-    color: #2e7d32;
+#disease {
+    text-align: center;
+
+    font-size: 25px;
+
+    color: #245f31;
+
+    margin-bottom: 10px;
 }
 
-.advice h3,
-.predictions h3 {
-    color: #388e3c;
+#result > p {
+    text-align: center;
+
+    color: #667568;
+
+    margin-bottom: 22px;
 }
 
-li {
+
+/* =========================================
+   ADVICE CARDS
+   ========================================= */
+
+.advice-box {
+    background: white;
+
+    border-radius: 17px;
+
+    padding: 18px;
+
+    margin-top: 14px;
+
+    border-left: 5px solid #4a9b58;
+
+    box-shadow:
+        0 5px 15px rgba(45, 91, 52, 0.06);
+}
+
+.advice-box h3 {
+    color: #28723a;
+
     margin-bottom: 8px;
+
+    font-size: 17px;
+}
+
+.advice-box p {
+    color: #59665b;
+
+    line-height: 1.6;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 15px;
+    }
+
+    .container {
+        padding: 25px 18px;
+
+        border-radius: 24px;
+    }
+
+    h1 {
+        font-size: 31px;
+    }
+
+    .upload-button {
+        width: 100%;
+
+        margin: 5px 0;
+    }
+
+    #analyzeButton {
+        width: 100%;
+    }
+
+    .preview-container {
+        min-height: 200px;
+    }
 }
