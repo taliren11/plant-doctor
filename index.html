@@ -1,16 +1,15 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Plant Doctor</title>
 
-    <!-- Main stylesheet -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- PWA -->
+    <!-- Plant Doctor PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
 </head>
@@ -25,18 +24,29 @@
             Take a picture of your plant leaf and let AI check its health.
         </p>
 
-        <!-- Image Preview -->
+
+        <!-- IMAGE PREVIEW -->
+
         <div class="preview-container">
             <img id="preview" alt="Selected leaf">
         </div>
 
-        <!-- Camera Button -->
-        <button id="cameraButton" class="upload-button" type="button">
+
+        <!-- CAMERA BUTTON -->
+
+        <button
+            id="cameraButton"
+            class="upload-button"
+            type="button">
             📷 Take a Picture
         </button>
 
-        <!-- Upload Button -->
-        <label for="imageInput" class="upload-button">
+
+        <!-- UPLOAD BUTTON -->
+
+        <label
+            for="imageInput"
+            class="upload-button">
             📁 Upload File
         </label>
 
@@ -47,18 +57,31 @@
             hidden
         >
 
-        <!-- Analyze Button -->
-        <button id="analyzeButton" type="button" disabled>
+
+        <!-- ANALYZE BUTTON -->
+
+        <button
+            id="analyzeButton"
+            type="button"
+            disabled>
             🔍 Analyze Leaf
         </button>
 
-        <!-- Loading -->
-        <p id="loading" style="display: none;">
+
+        <!-- LOADING -->
+
+        <p
+            id="loading"
+            style="display: none;">
             🌿 Analyzing your leaf...
         </p>
 
-        <!-- Results -->
-        <section id="result" style="display: none;">
+
+        <!-- RESULTS -->
+
+        <section
+            id="result"
+            style="display: none;">
 
             <h2>🩺 Diagnosis</h2>
 
@@ -66,14 +89,22 @@
 
             <p id="confidence"></p>
 
-            <div class="advice-card">
-                <h3>💊 Treatment</h3>
-                <p id="treatment"></p>
-            </div>
 
             <div class="advice-card">
+
+                <h3>💊 Treatment</h3>
+
+                <p id="treatment"></p>
+
+            </div>
+
+
+            <div class="advice-card">
+
                 <h3>🛡️ Prevention</h3>
+
                 <p id="prevention"></p>
+
             </div>
 
         </section>
@@ -81,11 +112,12 @@
     </main>
 
 
-    <!-- ========================= -->
-    <!-- CAMERA MODAL -->
-    <!-- ========================= -->
 
-    <div id="cameraModal" class="camera-modal">
+    <!-- CAMERA MODAL -->
+
+    <div
+        id="cameraModal"
+        class="camera-modal">
 
         <div class="camera-box">
 
@@ -93,31 +125,32 @@
                 id="cameraVideo"
                 autoplay
                 playsinline
-                muted
-            ></video>
+                muted>
+            </video>
 
-            <canvas id="cameraCanvas" hidden></canvas>
+            <canvas
+                id="cameraCanvas"
+                hidden>
+            </canvas>
+
 
             <div class="camera-controls">
 
                 <button
                     id="captureButton"
-                    type="button"
-                >
+                    type="button">
                     📸 Capture
                 </button>
 
                 <button
                     id="switchCameraButton"
-                    type="button"
-                >
+                    type="button">
                     🔄 Switch Camera
                 </button>
 
                 <button
                     id="closeCameraButton"
-                    type="button"
-                >
+                    type="button">
                     ✕ Close
                 </button>
 
@@ -128,13 +161,21 @@
     </div>
 
 
-    <!-- ========================= -->
-    <!-- TENSORFLOW + TEACHABLE MACHINE -->
-    <!-- ========================= -->
+
+    <!-- TENSORFLOW -->
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 
+
+    <!-- TEACHABLE MACHINE -->
+
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
-    <!-- Your JavaScript -->
-```
+
+    <!-- PLANT DOCTOR JAVASCRIPT -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
