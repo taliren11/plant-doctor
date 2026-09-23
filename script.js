@@ -1,415 +1,320 @@
+```javascript
+// ==========================================
+// PLANT DOCTOR - AI DISEASE DETECTION
+// ==========================================
+
+// Your Teachable Machine model
 const MODEL_URL =
     "https://teachablemachine.withgoogle.com/models/bjMLKRiPa/";
 
+// Elements
+const cameraInput = document.getElementById("cameraInput");
 const imageInput = document.getElementById("imageInput");
 const preview = document.getElementById("preview");
 const analyzeButton = document.getElementById("analyzeButton");
+
+const loading = document.getElementById("loading");
 const result = document.getElementById("result");
 
+const disease = document.getElementById("disease");
+const confidence = document.getElementById("confidence");
+const treatment = document.getElementById("treatment");
+const prevention = document.getElementById("prevention");
+
+// AI model
+let model = null;
+
+// Currently selected image
 let selectedImage = null;
-let model;
 
 
-// ================================
+// ==========================================
 // LOAD AI MODEL
-// ================================
+// ==========================================
 
 async function loadModel() {
-
     try {
+        const modelURL = MODEL_URL + "model.json";
+        const metadataURL = MODEL_URL + "metadata.json";
 
-        result.innerHTML =
-            "⏳ Loading Plant Doctor AI...";
+        model = await tmImage.load(modelURL, metadataURL);
 
-        model = await tmImage.load(
-            MODEL_URL + "model.json",
-            MODEL_URL + "metadata.json"
-        );
+        console.log("AI model loaded successfully.");
 
-        result.innerHTML =
-            "✅ AI Ready! Choose a plant picture.";
+        analyzeButton.disabled = false;
 
     } catch (error) {
+        console.error("Could not load AI model:", error);
 
-        console.error(error);
-
-        result.innerHTML =
-            "❌ Could not load the AI model. Please refresh the page.";
+        alert(
+            "The AI model could not be loaded. Please check your internet connection and try again."
+        );
     }
 }
 
+loadModel();
 
-// ================================
-// IMAGE UPLOAD
-// ================================
 
-imageInput.addEventListener("change", function(event) {
+// ==========================================
+// HANDLE IMAGE
+// ==========================================
 
-    const file = event.target.files[0];
+function handleImage(file) {
 
     if (!file) {
         return;
     }
 
-    selectedImage = file;
+    // Make sure the selected file is an image
+    if (!file.type.startsWith("image/")) {
+        alert("Please select an image file.");
+        return;
+    }
 
     const reader = new FileReader();
 
-    reader.onload = function(e) {
+    reader.onload = function(event) {
 
-        preview.src = e.target.result;
+        preview.src = event.target.result;
 
-        preview.style.display = "block";
+        preview.onload = function() {
 
-        result.innerHTML =
-            "📸 Picture selected! Click Analyze Plant.";
+            selectedImage = preview;
+
+            analyzeButton.disabled = false;
+
+            // Hide previous result
+            result.style.display = "none";
+
+            console.log("Image ready for analysis.");
+        };
     };
 
     reader.readAsDataURL(file);
+}
+
+
+// ==========================================
+// TAKE A PICTURE
+// ==========================================
+
+cameraInput.addEventListener("change", function(event) {
+
+    const file = event.target.files[0];
+
+    handleImage(file);
 
 });
 
 
-// ================================
-// GET DISEASE KEY
-// ================================
+// ==========================================
+// UPLOAD A FILE
+// ==========================================
 
-function getDiseaseKey(label) {
+imageInput.addEventListener("change", function(event) {
 
-    const name = label.toLowerCase().trim();
+    const file = event.target.files[0];
 
-    if (
-        name === "leaf curl" ||
-        name === "leaf curls"
-    ) {
-        return "leaf curl";
-    }
+    handleImage(file);
 
-    if (name === "downy mildew") {
-        return "downy mildew";
-    }
-
-    if (name === "powdery mildew") {
-        return "powdery mildew";
-    }
-
-    if (
-        name === "fungal leaf spot" ||
-        name === "fungal leaf spots"
-    ) {
-        return "fungal leaf spot";
-    }
-
-    if (
-        name === "healthy plant" ||
-        name === "healthy plants"
-    ) {
-        return "healthy plant";
-    }
-
-    return null;
-}
+});
 
 
-// ================================
-// DISEASE INFORMATION
-// ================================
+// ==========================================
+// ANALYZE LEAF
+// ==========================================
 
-const diseaseInfo = {
-
-    "leaf curl": {
-
-        title: "🍃 Leaf Curl",
-
-        cure: `
-        <ul>
-            <li>Check the undersides of leaves and new growth for aphids, whiteflies, or other sucking insects.</li>
-            <li>Remove badly damaged or heavily curled leaves.</li>
-            <li>Keep watering consistent, but avoid waterlogging the soil.</li>
-            <li>If insects are present, use an appropriate insect-control treatment for the plant.</li>
-            <li>If curling continues even when pests are absent, the plant may be experiencing a viral infection or environmental stress.</li>
-            <li>Isolate severely affected plants to reduce the risk of spreading disease.</li>
-        </ul>
-        `,
-
-        prevention: `
-        <ul>
-            <li>Inspect new growth regularly for insects.</li>
-            <li>Keep weeds and infected plant debris under control.</li>
-            <li>Give plants enough space for good air circulation.</li>
-            <li>Maintain consistent watering.</li>
-            <li>Use healthy planting material.</li>
-            <li>Choose resistant varieties when available.</li>
-        </ul>
-        `
-    },
-
-    "downy mildew": {
-
-        title: "🌿 Downy Mildew",
-
-        cure: `
-        <ul>
-            <li>Remove heavily infected leaves.</li>
-            <li>Dispose of infected leaves away from healthy plants.</li>
-            <li>Improve air circulation around the plant.</li>
-            <li>Water at the base of the plant instead of wetting the leaves.</li>
-            <li>Reduce prolonged periods of high humidity around the foliage.</li>
-            <li>If the disease continues spreading, use a fungicide specifically labeled for downy mildew and the affected crop.</li>
-        </ul>
-        `,
-
-        prevention: `
-        <ul>
-            <li>Give plants enough space for good airflow.</li>
-            <li>Avoid unnecessary overhead watering.</li>
-            <li>Water near the soil rather than repeatedly wetting leaves.</li>
-            <li>Remove fallen and infected leaves.</li>
-            <li>Monitor plants carefully during cool and humid weather.</li>
-        </ul>
-        `
-    },
-
-    "powdery mildew": {
-
-        title: "☁️ Powdery Mildew",
-
-        cure: `
-        <ul>
-            <li>Remove severely infected leaves and plant parts.</li>
-            <li>Improve sunlight and air circulation around the plant.</li>
-            <li>Avoid excessive nitrogen fertilizer.</li>
-            <li>Keep foliage dry where possible.</li>
-            <li>If the disease continues spreading, use a fungicide labeled for powdery mildew and the affected crop.</li>
-        </ul>
-        `,
-
-        prevention: `
-        <ul>
-            <li>Provide adequate spacing between plants.</li>
-            <li>Maintain good air circulation.</li>
-            <li>Provide sufficient sunlight.</li>
-            <li>Look regularly for the white powdery coating that can appear on leaves.</li>
-            <li>Remove infected plant material early.</li>
-            <li>Water the soil rather than repeatedly wetting the foliage.</li>
-        </ul>
-        `
-    },
-
-    "fungal leaf spot": {
-
-        title: "🍂 Fungal Leaf Spot",
-
-        cure: `
-        <ul>
-            <li>Remove badly affected leaves.</li>
-            <li>Clean up fallen leaves and infected plant debris.</li>
-            <li>Improve air circulation around the plant.</li>
-            <li>Avoid overhead watering.</li>
-            <li>Allow the foliage to dry after watering.</li>
-            <li>If the disease continues spreading, use a fungicide labeled for fungal leaf spot and the affected crop.</li>
-        </ul>
-        `,
-
-        prevention: `
-        <ul>
-            <li>Inspect plants regularly for new spots.</li>
-            <li>Remove infected leaves as soon as possible.</li>
-            <li>Keep the growing area free of infected plant debris.</li>
-            <li>Provide enough spacing and airflow.</li>
-            <li>Water at the base of the plant.</li>
-            <li>Clean and disinfect pruning tools after working with infected plants.</li>
-        </ul>
-        `
-    },
-
-    "healthy plant": {
-
-        title: "🌱 Healthy Plant",
-
-        cure: `
-        <p>
-            Your plant appears healthy! No major disease was detected.
-            Continue providing the plant with suitable sunlight, water,
-            nutrients, and growing conditions.
-        </p>
-        `,
-
-        prevention: `
-        <ul>
-            <li>Check your plants regularly for early signs of disease.</li>
-            <li>Provide appropriate sunlight.</li>
-            <li>Water consistently without overwatering.</li>
-            <li>Maintain good air circulation.</li>
-            <li>Remove dead or infected plant material.</li>
-            <li>Keep gardening tools clean.</li>
-        </ul>
-        `
-    }
-};
-
-
-// ================================
-// ANALYZE PLANT
-// ================================
-
-async function analyzePlant() {
+analyzeButton.addEventListener("click", async function() {
 
     if (!selectedImage) {
-
-        result.innerHTML =
-            "📸 Please choose a plant picture first.";
-
+        alert("Please take a picture or upload an image first.");
         return;
     }
 
     if (!model) {
-
-        result.innerHTML =
-            "⏳ The AI is still loading. Please wait a moment.";
-
+        alert("The AI model is still loading. Please wait a moment.");
         return;
     }
 
+    // Show loading
+    loading.style.display = "block";
+    result.style.display = "none";
+
+    analyzeButton.disabled = true;
+
     try {
 
-        result.innerHTML =
-            "🔍 Analyzing your plant...";
+        // Get predictions
+        const predictions = await model.predict(selectedImage);
 
-        const image = new Image();
+        console.log("Predictions:", predictions);
 
-        image.src = URL.createObjectURL(selectedImage);
+        // Find highest probability
+        let highestPrediction = predictions[0];
 
-        image.onload = async function() {
-
-            const predictions =
-                await model.predict(image);
-
-            predictions.sort(
-                (a, b) =>
-                    b.probability - a.probability
-            );
-
-            const bestPrediction =
-                predictions[0];
-
-            const label =
-                bestPrediction.className;
-
-            const confidence =
-                (bestPrediction.probability * 100)
-                .toFixed(1);
-
-            const diseaseKey =
-                getDiseaseKey(label);
-
-            let output = `
-                <div class="diagnosis">
-                    <h2>🌱 Diagnosis</h2>
-                    <h3>${label}</h3>
-                    <p>
-                        <strong>Confidence:</strong>
-                        ${confidence}%
-                    </p>
-                </div>
-            `;
+        for (let i = 1; i < predictions.length; i++) {
 
             if (
-                diseaseKey &&
-                diseaseInfo[diseaseKey]
+                predictions[i].probability >
+                highestPrediction.probability
             ) {
-
-                const info =
-                    diseaseInfo[diseaseKey];
-
-                output += `
-                    <div class="advice">
-
-                        <h2>${info.title}</h2>
-
-                        <h3>💊 What to do</h3>
-
-                        ${info.cure}
-
-                        <h3>🛡️ Prevention</h3>
-
-                        ${info.prevention}
-
-                    </div>
-                `;
-
-            } else {
-
-                output += `
-                    <div class="advice">
-
-                        <h3>💡 General Advice</h3>
-
-                        <p>
-                            Keep the plant healthy by providing
-                            suitable sunlight, watering, nutrition,
-                            and good air circulation.
-                        </p>
-
-                    </div>
-                `;
+                highestPrediction = predictions[i];
             }
 
-            output += `
-                <div class="predictions">
+        }
 
-                    <h3>📊 AI Results</h3>
-            `;
+        const predictedDisease = highestPrediction.className;
+        const predictedConfidence =
+            highestPrediction.probability * 100;
 
-            predictions.forEach(function(prediction) {
+        // Display disease
+        disease.textContent = predictedDisease;
 
-                const percentage =
-                    (
-                        prediction.probability * 100
-                    ).toFixed(1);
+        // Display confidence
+        confidence.textContent =
+            predictedConfidence.toFixed(1) + "%";
 
-                output += `
-                    <p>
-                        <strong>
-                            ${prediction.className}
-                        </strong>
-                        : ${percentage}%
-                    </p>
-                `;
+        // Get advice
+        const advice = getAdvice(predictedDisease);
 
-            });
+        treatment.textContent = advice.treatment;
+        prevention.textContent = advice.prevention;
 
-            output += `</div>`;
-
-            result.innerHTML = output;
-
-            URL.revokeObjectURL(image.src);
-        };
+        // Show results
+        result.style.display = "block";
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Prediction error:", error);
 
-        result.innerHTML = `
-            ❌ Something went wrong while analyzing
-            the image. Please try another picture.
-        `;
+        alert(
+            "Something went wrong while analyzing the image."
+        );
+
+    } finally {
+
+        loading.style.display = "none";
+
+        analyzeButton.disabled = false;
     }
+
+});
+
+
+// ==========================================
+// DISEASE ADVICE
+// ==========================================
+
+function getAdvice(diseaseName) {
+
+    const name = diseaseName.toLowerCase();
+
+    // --------------------------------------
+    // POWDERY MILDEW
+    // --------------------------------------
+
+    if (name.includes("powdery")) {
+
+        return {
+
+            treatment:
+                "Remove badly affected leaves and dispose of them away from healthy plants. Improve air circulation around the plant and avoid wetting the leaves when watering. A suitable fungicide may be used according to its label directions.",
+
+            prevention:
+                "Give plants enough spacing, provide good sunlight and air circulation, avoid excessive nitrogen fertilizer, and water near the soil rather than directly on the leaves. Check plants regularly for white powdery growth."
+
+        };
+    }
+
+
+    // --------------------------------------
+    // DOWNY MILDEW
+    // --------------------------------------
+
+    if (name.includes("downy")) {
+
+        return {
+
+            treatment:
+                "Remove and dispose of heavily infected leaves. Keep foliage as dry as possible and improve air circulation. Avoid overhead watering. If the disease continues to spread, use an appropriate fungicide according to the product label.",
+
+            prevention:
+                "Avoid overcrowding plants, provide good ventilation, water at the base of the plant, and remove infected plant material. Regularly inspect the undersides of leaves for early signs of infection."
+
+        };
+    }
+
+
+    // --------------------------------------
+    // LEAF CURL
+    // --------------------------------------
+
+    if (name.includes("leaf curl") || name.includes("leafcurl")) {
+
+        return {
+
+            treatment:
+                "Remove severely affected leaves and check the plant carefully for insects such as aphids, whiteflies or other sap-sucking pests. Control the pests using an appropriate method and keep the plant properly watered.",
+
+            prevention:
+                "Inspect plants regularly for pests, keep weeds under control, maintain consistent watering, avoid plant stress, and keep infected or heavily infested plant material away from healthy plants."
+
+        };
+    }
+
+
+    // --------------------------------------
+    // FUNGAL LEAF SPOT
+    // --------------------------------------
+
+    if (
+        name.includes("fungal leaf spot") ||
+        name.includes("leaf spot") ||
+        name.includes("black spot")
+    ) {
+
+        return {
+
+            treatment:
+                "Remove affected leaves and dispose of them rather than leaving them near the plant. Avoid getting water on the foliage and improve air circulation. A suitable fungicide can be considered for serious infections according to its label directions.",
+
+            prevention:
+                "Keep leaves dry, water at the base of the plant, provide good spacing and air circulation, remove fallen infected leaves, and regularly inspect plants for new spots."
+
+        };
+    }
+
+
+    // --------------------------------------
+    // HEALTHY PLANT
+    // --------------------------------------
+
+    if (name.includes("healthy")) {
+
+        return {
+
+            treatment:
+                "No disease treatment is currently indicated. Continue normal plant care and monitor the plant regularly for changes.",
+
+            prevention:
+                "Maintain good sunlight, appropriate watering, adequate nutrition and good air circulation. Inspect leaves regularly so that any disease or pest problem can be detected early."
+
+        };
+    }
+
+
+    // --------------------------------------
+    // DEFAULT
+    // --------------------------------------
+
+    return {
+
+        treatment:
+            "Follow the recommended care for the detected condition and monitor the plant closely. If symptoms become worse, consult a local agricultural expert.",
+
+        prevention:
+            "Maintain good air circulation, avoid unnecessary leaf wetness, remove infected plant material and regularly inspect your plants."
+
+    };
 }
-
-
-// ================================
-// ANALYZE BUTTON
-// ================================
-
-analyzeButton.addEventListener(
-    "click",
-    analyzePlant
-);
-
-
-// ================================
-// START APP
-// ================================
-
-loadModel();
+```
