@@ -1,9 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>Plant Doctor</title>
 
     <link rel="stylesheet" href="style.css">
@@ -11,7 +14,7 @@
     <!-- TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
 
-    <!-- Teachable Machine Image -->
+    <!-- Teachable Machine -->
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 </head>
 
@@ -25,26 +28,42 @@
             Detect plant diseases using AI
         </p>
 
-        <!-- Image preview -->
+
+        <!-- =====================================
+             IMAGE PREVIEW
+        ====================================== -->
+
         <div class="preview-container">
-            <img id="preview" alt="Leaf preview">
+
+            <img
+                id="preview"
+                alt="Selected leaf"
+            >
+
         </div>
 
-        <!-- Camera -->
-        <label for="cameraInput" class="upload-button">
-            📷 Take a Picture
-        </label>
 
-        <input
-            type="file"
-            id="cameraInput"
-            accept="image/*"
-            capture="environment"
-            hidden
+        <!-- =====================================
+             CAMERA BUTTON
+        ====================================== -->
+
+        <button
+            id="cameraButton"
+            class="upload-button"
+            type="button"
         >
+            📷 Take a Picture
+        </button>
 
-        <!-- File upload -->
-        <label for="imageInput" class="upload-button">
+
+        <!-- =====================================
+             FILE UPLOAD
+        ====================================== -->
+
+        <label
+            for="imageInput"
+            class="upload-button"
+        >
             📁 Upload File
         </label>
 
@@ -55,18 +74,40 @@
             hidden
         >
 
-        <!-- Analyze -->
-        <button id="analyzeButton" disabled>
+
+        <!-- =====================================
+             ANALYZE BUTTON
+        ====================================== -->
+
+        <button
+            id="analyzeButton"
+            type="button"
+            disabled
+        >
             🔍 Analyze Leaf
         </button>
 
-        <!-- Loading -->
-        <p id="loading" style="display:none;">
+
+        <!-- =====================================
+             LOADING
+        ====================================== -->
+
+        <p
+            id="loading"
+            style="display:none;"
+        >
             🤖 AI is analyzing your leaf...
         </p>
 
-        <!-- Results -->
-        <div id="result" style="display:none;">
+
+        <!-- =====================================
+             RESULTS
+        ====================================== -->
+
+        <div
+            id="result"
+            style="display:none;"
+        >
 
             <h2>🌿 Result</h2>
 
@@ -77,22 +118,103 @@
                 <span id="confidence">-</span>
             </p>
 
-            <div class="advice-box">
-                <h3>💊 Treatment</h3>
-                <p id="treatment">-</p>
-            </div>
 
             <div class="advice-box">
+
+                <h3>💊 Treatment</h3>
+
+                <p id="treatment">
+                    -
+                </p>
+
+            </div>
+
+
+            <div class="advice-box">
+
                 <h3>🛡️ Prevention</h3>
-                <p id="prevention">-</p>
+
+                <p id="prevention">
+                    -
+                </p>
+
             </div>
 
         </div>
 
     </div>
 
+
+    <!-- =====================================
+         CAMERA MODAL
+    ====================================== -->
+
+    <div
+        id="cameraModal"
+        class="camera-modal"
+    >
+
+        <div class="camera-box">
+
+            <h2>📷 Take a Picture</h2>
+
+            <p>
+                Position the leaf inside the camera.
+            </p>
+
+
+            <!-- Live camera -->
+            <video
+                id="cameraVideo"
+                autoplay
+                playsinline
+                muted
+            ></video>
+
+
+            <!-- Camera controls -->
+
+            <div class="camera-controls">
+
+                <button
+                    id="captureButton"
+                    type="button"
+                >
+                    📸 Capture Photo
+                </button>
+
+
+                <button
+                    id="switchCameraButton"
+                    type="button"
+                >
+                    🔄 Switch Camera
+                </button>
+
+
+                <button
+                    id="closeCameraButton"
+                    type="button"
+                >
+                    ✕ Close
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Hidden canvas used to capture the photo -->
+    <canvas
+        id="cameraCanvas"
+        style="display:none;"
+    ></canvas>
+
+
     <script src="script.js"></script>
 
 </body>
-</html>
 
+</html>
