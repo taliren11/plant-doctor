@@ -5,7 +5,31 @@ let selectedImage = null;
 let cameraStream = null;
 let currentCamera = "environment";
 
-// Main elements
+/* =========================================
+   SERVICE WORKER
+   Register immediately so PWABuilder can detect it
+   ========================================= */
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js")
+        .then(registration => {
+            console.log(
+                "Plant Doctor service worker registered:",
+                registration.scope
+            );
+        })
+        .catch(error => {
+            console.error(
+                "Plant Doctor service worker registration failed:",
+                error
+            );
+        });
+}
+
+/* =========================================
+   MAIN ELEMENTS
+   ========================================= */
+
 const cameraButton = document.getElementById("cameraButton");
 const imageInput = document.getElementById("imageInput");
 const preview = document.getElementById("preview");
@@ -18,7 +42,10 @@ const confidence = document.getElementById("confidence");
 const treatment = document.getElementById("treatment");
 const prevention = document.getElementById("prevention");
 
-// Camera elements
+/* =========================================
+   CAMERA ELEMENTS
+   ========================================= */
+
 const cameraModal = document.getElementById("cameraModal");
 const cameraVideo = document.getElementById("cameraVideo");
 const cameraCanvas = document.getElementById("cameraCanvas");
@@ -26,10 +53,9 @@ const captureButton = document.getElementById("captureButton");
 const switchCameraButton = document.getElementById("switchCameraButton");
 const closeCameraButton = document.getElementById("closeCameraButton");
 
-
-// ===============================
-// LOAD AI MODEL
-// ===============================
+/* =========================================
+   LOAD AI MODEL
+   ========================================= */
 
 async function loadModel() {
     try {
@@ -39,18 +65,21 @@ async function loadModel() {
         );
 
         console.log("Plant Doctor AI model loaded.");
+
     } catch (error) {
         console.error("Could not load AI model:", error);
-        alert("The AI model could not be loaded. Please check your internet connection.");
+
+        alert(
+            "The AI model could not be loaded. Please check your internet connection."
+        );
     }
 }
 
 loadModel();
 
-
-// ===============================
-// OPEN CAMERA
-// ===============================
+/* =========================================
+   CAMERA
+   ========================================= */
 
 cameraButton.addEventListener("click", openCamera);
 
@@ -58,7 +87,10 @@ async function openCamera() {
     try {
         stopCamera();
 
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
             alert("Your browser does not support camera access.");
             return;
         }
@@ -90,14 +122,14 @@ async function openCamera() {
         );
 
         stopCamera();
+
         cameraModal.style.display = "none";
     }
 }
 
-
-// ===============================
-// CAPTURE PHOTO
-// ===============================
+/* =========================================
+   CAPTURE PHOTO
+   ========================================= */
 
 captureButton.addEventListener("click", () => {
 
@@ -118,7 +150,10 @@ captureButton.addEventListener("click", () => {
         cameraCanvas.height
     );
 
-    const imageData = cameraCanvas.toDataURL("image/jpeg", 0.9);
+    const imageData = cameraCanvas.toDataURL(
+        "image/jpeg",
+        0.9
+    );
 
     preview.src = imageData;
     preview.style.display = "block";
@@ -126,6 +161,7 @@ captureButton.addEventListener("click", () => {
     selectedImage = preview;
 
     stopCamera();
+
     cameraModal.style.display = "none";
 
     analyzeButton.disabled = false;
@@ -133,10 +169,9 @@ captureButton.addEventListener("click", () => {
     result.style.display = "none";
 });
 
-
-// ===============================
-// SWITCH CAMERA
-// ===============================
+/* =========================================
+   SWITCH CAMERA
+   ========================================= */
 
 switchCameraButton.addEventListener("click", async () => {
 
@@ -149,20 +184,20 @@ switchCameraButton.addEventListener("click", async () => {
     await openCamera();
 });
 
-
-// ===============================
-// CLOSE CAMERA
-// ===============================
+/* =========================================
+   CLOSE CAMERA
+   ========================================= */
 
 closeCameraButton.addEventListener("click", () => {
+
     stopCamera();
+
     cameraModal.style.display = "none";
 });
 
-
-// ===============================
-// STOP CAMERA
-// ===============================
+/* =========================================
+   STOP CAMERA
+   ========================================= */
 
 function stopCamera() {
 
@@ -178,10 +213,9 @@ function stopCamera() {
     cameraVideo.srcObject = null;
 }
 
-
-// ===============================
-// UPLOAD IMAGE
-// ===============================
+/* =========================================
+   UPLOAD IMAGE
+   ========================================= */
 
 imageInput.addEventListener("change", event => {
 
@@ -196,6 +230,7 @@ imageInput.addEventListener("change", event => {
     reader.onload = function(e) {
 
         preview.src = e.target.result;
+
         preview.style.display = "block";
 
         selectedImage = preview;
@@ -208,61 +243,90 @@ imageInput.addEventListener("change", event => {
     reader.readAsDataURL(file);
 });
 
-
-// ===============================
-// ANALYZE IMAGE
-// ===============================
+/* =========================================
+   ANALYZE IMAGE
+   ========================================= */
 
 analyzeButton.addEventListener("click", async () => {
 
     if (!selectedImage) {
-        alert("Please take a picture or upload a leaf image first.");
+
+        alert(
+            "Please take a picture or upload a leaf image first."
+        );
+
         return;
     }
 
     if (!model) {
-        alert("The AI model is still loading. Please wait a moment and try again.");
+
+        alert(
+            "The AI model is still loading. Please wait a moment and try again."
+        );
+
         return;
     }
 
     loading.style.display = "block";
+
     result.style.display = "none";
+
     analyzeButton.disabled = true;
 
     try {
 
-        const predictions = await model.predict(selectedImage);
+        const predictions = await model.predict(
+            selectedImage
+        );
 
         let highestPrediction = predictions[0];
 
-        for (let i = 1; i < predictions.length; i++) {
+        for (
+            let i = 1;
+            i < predictions.length;
+            i++
+        ) {
 
             if (
                 predictions[i].probability >
                 highestPrediction.probability
             ) {
+
                 highestPrediction = predictions[i];
             }
         }
 
-        const predictedDisease = highestPrediction.className;
-        const predictedConfidence =
-            Math.round(highestPrediction.probability * 100);
+        const predictedDisease =
+            highestPrediction.className;
 
-        disease.textContent = predictedDisease;
+        const predictedConfidence =
+            Math.round(
+                highestPrediction.probability * 100
+            );
+
+        disease.textContent =
+            predictedDisease;
+
         confidence.textContent =
             `Confidence: ${predictedConfidence}%`;
 
-        const advice = getAdvice(predictedDisease);
+        const advice =
+            getAdvice(predictedDisease);
 
-        treatment.textContent = advice.treatment;
-        prevention.textContent = advice.prevention;
+        treatment.textContent =
+            advice.treatment;
+
+        prevention.textContent =
+            advice.prevention;
 
         result.style.display = "block";
 
     } catch (error) {
 
-        console.error("Prediction error:", error);
+        console.error(
+            "Prediction error:",
+            error
+        );
 
         alert(
             "Something went wrong while analyzing the image. Please try again."
@@ -271,22 +335,26 @@ analyzeButton.addEventListener("click", async () => {
     } finally {
 
         loading.style.display = "none";
+
         analyzeButton.disabled = false;
     }
 });
 
-
-// ===============================
-// DISEASE ADVICE
-// ===============================
+/* =========================================
+   DISEASE ADVICE
+   ========================================= */
 
 function getAdvice(diseaseName) {
 
-    const name = diseaseName.toLowerCase();
+    const name =
+        diseaseName.toLowerCase();
+
+    /* POWDERY MILDEW */
 
     if (name.includes("powdery")) {
 
         return {
+
             treatment:
                 "Remove badly affected leaves and improve air circulation around the plant. Avoid watering the leaves. A suitable fungicide or an appropriate powdery mildew treatment can help control the infection.",
 
@@ -295,10 +363,12 @@ function getAdvice(diseaseName) {
         };
     }
 
+    /* DOWNY MILDEW */
 
     if (name.includes("downy")) {
 
         return {
+
             treatment:
                 "Remove infected leaves and dispose of them away from healthy plants. Improve ventilation and avoid keeping the foliage wet for long periods. A suitable fungicide may help manage the disease.",
 
@@ -307,10 +377,12 @@ function getAdvice(diseaseName) {
         };
     }
 
+    /* LEAF CURL */
 
     if (name.includes("curl")) {
 
         return {
+
             treatment:
                 "Remove severely affected leaves and check the plant carefully for pests such as aphids or whiteflies. Control insect pests using an appropriate treatment and keep the plant properly watered.",
 
@@ -319,6 +391,7 @@ function getAdvice(diseaseName) {
         };
     }
 
+    /* FUNGAL LEAF SPOT */
 
     if (
         name.includes("fungal leaf spot") ||
@@ -326,6 +399,7 @@ function getAdvice(diseaseName) {
     ) {
 
         return {
+
             treatment:
                 "Remove infected leaves and dispose of them safely. Avoid getting water on the foliage and improve air circulation. A suitable fungicide may help if the infection is severe.",
 
@@ -334,10 +408,12 @@ function getAdvice(diseaseName) {
         };
     }
 
+    /* HEALTHY */
 
     if (name.includes("healthy")) {
 
         return {
+
             treatment:
                 "Your plant appears healthy! Continue providing suitable sunlight, water and nutrients.",
 
@@ -346,8 +422,10 @@ function getAdvice(diseaseName) {
         };
     }
 
+    /* UNKNOWN */
 
     return {
+
         treatment:
             "The condition could not be identified with complete certainty. Remove severely affected leaves and keep the plant in a clean, well-ventilated environment.",
 
@@ -356,38 +434,13 @@ function getAdvice(diseaseName) {
     };
 }
 
+/* =========================================
+   CLEAN UP CAMERA WHEN LEAVING PAGE
+   ========================================= */
 
-// ===============================
-// STOP CAMERA WHEN LEAVING PAGE
-// ===============================
-
-window.addEventListener("beforeunload", () => {
-    stopCamera();
-});
-
-
-// ===============================
-// REGISTER SERVICE WORKER
-// ===============================
-
-if ("serviceWorker" in navigator) {
-
-    window.addEventListener("load", () => {
-
-        navigator.serviceWorker.register("./service-worker.js")
-
-            .then(() => {
-                console.log(
-                    "Plant Doctor service worker registered successfully."
-                );
-            })
-
-            .catch(error => {
-                console.error(
-                    "Service worker registration failed:",
-                    error
-                );
-            });
-
-    });
-}
+window.addEventListener(
+    "beforeunload",
+    () => {
+        stopCamera();
+    }
+);
