@@ -1,4 +1,4 @@
-﻿const MODEL_URL =
+const MODEL_URL =
     "https://teachablemachine.withgoogle.com/models/bjMLKRiPa/";
 
 let model;
@@ -9,57 +9,132 @@ const analyzeButton = document.getElementById("analyzeButton");
 const result = document.getElementById("result");
 
 
-/* =========================
+/* =========================================
    DISEASE INFORMATION
-========================= */
+========================================= */
 
 const diseaseInfo = {
 
     "leaf curl": {
         icon: "🍃",
+
         treatment:
-            "Remove badly affected leaves and check the plant for insects such as aphids or whiteflies. Keep the plant properly watered.",
+            "First check the underside of the leaves and new growth for aphids, whiteflies, or other sucking insects. Remove badly damaged leaves and affected plant parts. Keep the plant consistently watered, but avoid waterlogging the soil. If insects are present, use an appropriate insect-control treatment according to its label. If curling continues without visible insects, the cause may be viral or environmental, and severely affected plants may need to be isolated or removed.",
+
         prevention:
-            "Regularly check for insects, remove infected leaves, and keep the plant healthy."
+            "Inspect new leaves regularly for insects and early signs of curling. Keep weeds and infected plant material away from the growing area. Avoid overcrowding and provide good airflow. Maintain consistent watering and avoid sudden changes in growing conditions. Use healthy planting material and, where available, varieties that are resistant to common viruses or pests."
     },
+
 
     "downy mildew": {
         icon: "🦠",
+
         treatment:
-            "Remove infected leaves and improve air circulation around the plant. Avoid getting water directly on the leaves.",
+            "Remove leaves that are heavily affected and dispose of them away from healthy plants. Improve air circulation by spacing plants and removing excessive foliage. Water at the base of the plant instead of wetting the leaves. Keep foliage as dry as possible and reduce prolonged periods of high humidity. If the disease continues to spread, use a fungicide specifically labeled for downy mildew on your particular crop and follow the product label carefully.",
+
         prevention:
-            "Give plants enough space for airflow and avoid excessive moisture on the leaves."
+            "Avoid overcrowding plants and provide good air circulation. Water near the base of plants, preferably early enough for foliage to dry quickly. Avoid unnecessary overhead watering. Remove fallen or infected leaves promptly. Inspect plants regularly, especially during cool and humid weather, because these conditions can favor downy mildew development."
     },
+
 
     "powdery mildew": {
         icon: "🍂",
+
         treatment:
-            "Remove severely affected leaves and improve sunlight and air circulation around the plant.",
+            "Remove severely infected leaves and plant parts and dispose of them rather than leaving them around the plant. Improve sunlight and air circulation by reducing overcrowding. Avoid excessive nitrogen fertilization because very lush growth can be more susceptible. Keep the foliage dry when possible. If the infection is spreading, use a fungicide labeled for powdery mildew and the specific plant, following the product label instructions.",
+
         prevention:
-            "Avoid overcrowding and maintain good airflow around the leaves."
+            "Give plants enough space for good airflow and sunlight. Avoid planting in locations with poor air circulation. Inspect new growth regularly for the characteristic white, powdery coating. Remove infected plant material early and keep the growing area clean. Water the soil rather than repeatedly wetting foliage, while maintaining appropriate moisture for the plant."
     },
 
-    "black spots": {
+
+    "fungal leaf spot": {
         icon: "⚫",
+
         treatment:
-            "Remove affected leaves and fallen plant material. Avoid unnecessarily wetting the leaves.",
+            "Remove badly affected leaves and dispose of them away from healthy plants. Clean up fallen leaves and infected plant debris because fungal pathogens can survive in them. Improve air circulation by reducing overcrowding. Avoid overhead watering and allow foliage to dry quickly. If the disease continues to spread, use a fungicide specifically labeled for fungal leaf spot on the affected crop and follow the product label carefully.",
+
         prevention:
-            "Maintain good air circulation and avoid keeping the leaves wet for long periods."
+            "Inspect leaves regularly so symptoms can be detected early. Remove infected leaves and fallen debris promptly. Give plants enough space for good airflow. Water at the base of the plant rather than keeping the leaves wet. Keep pruning tools clean and disinfect them between plants when disease is suspected."
     },
+
 
     "healthy plant": {
         icon: "🌿",
+
         treatment:
-            "No disease was detected. Continue providing appropriate water, sunlight, and nutrients.",
+            "No obvious disease was detected by the AI model. Continue normal plant care, including appropriate watering, sunlight, nutrition, and monitoring. If new symptoms appear, take another clear photograph and check the plant again.",
+
         prevention:
-            "Continue regular plant care and monitor the leaves for any changes."
+            "Inspect leaves and new growth regularly for spots, discoloration, curling, or unusual growth. Keep the growing area clean, provide good airflow, and avoid unnecessary leaf wetness. Healthy plants are generally better able to tolerate disease and environmental stress."
     }
+
 };
 
 
-/* =========================
-   LOAD MODEL
-========================= */
+/* =========================================
+   MATCH MODEL CLASS TO OUR INFORMATION
+========================================= */
+
+function getDiseaseKey(className) {
+
+    const name = className.trim().toLowerCase();
+
+    /* Leaf Curl / Leaf Curls */
+
+    if (
+        name === "leaf curl" ||
+        name === "leaf curls"
+    ) {
+        return "leaf curl";
+    }
+
+
+    /* Downy Mildew */
+
+    if (
+        name === "downy mildew"
+    ) {
+        return "downy mildew";
+    }
+
+
+    /* Powdery Mildew */
+
+    if (
+        name === "powdery mildew"
+    ) {
+        return "powdery mildew";
+    }
+
+
+    /* Fungal Leaf Spot */
+
+    if (
+        name === "fungal leaf spot" ||
+        name === "fungal leaf spots"
+    ) {
+        return "fungal leaf spot";
+    }
+
+
+    /* Healthy Plant / Healthy Plants */
+
+    if (
+        name === "healthy plant" ||
+        name === "healthy plants"
+    ) {
+        return "healthy plant";
+    }
+
+
+    return null;
+}
+
+
+/* =========================================
+   LOAD AI MODEL
+========================================= */
 
 async function loadModel() {
 
@@ -70,7 +145,10 @@ async function loadModel() {
         const modelURL = MODEL_URL + "model.json";
         const metadataURL = MODEL_URL + "metadata.json";
 
-        model = await tmImage.load(modelURL, metadataURL);
+        model = await tmImage.load(
+            modelURL,
+            metadataURL
+        );
 
         result.innerHTML =
             "✅ AI model ready!<br>Upload a leaf to begin.";
@@ -85,207 +163,263 @@ async function loadModel() {
 }
 
 
-/* =========================
+/* =========================================
    IMAGE UPLOAD
-========================= */
+========================================= */
 
-imageInput.addEventListener("change", function () {
+imageInput.addEventListener(
+    "change",
+    function () {
 
-    const file = imageInput.files[0];
+        const file = imageInput.files[0];
 
-    if (!file) return;
+        if (!file) {
+            return;
+        }
 
-    const imageURL = URL.createObjectURL(file);
+        const imageURL =
+            URL.createObjectURL(file);
 
-    preview.src = imageURL;
+        preview.src = imageURL;
 
-    preview.style.display = "block";
+        preview.style.display = "block";
 
-    result.innerHTML =
-        "📷 Image ready!<br>Click <b>Analyze Plant</b>.";
-});
+        result.innerHTML =
+            "📷 Image ready!<br>Click <b>Analyze Plant</b>.";
+    }
+);
 
 
-/* =========================
+/* =========================================
    ANALYZE IMAGE
-========================= */
+========================================= */
 
-analyzeButton.addEventListener("click", async function () {
+analyzeButton.addEventListener(
+    "click",
+    async function () {
 
-    if (!imageInput.files[0]) {
+        if (!imageInput.files[0]) {
+
+            result.innerHTML =
+                "⚠️ Please upload a leaf image first.";
+
+            return;
+        }
+
+
+        if (!model) {
+
+            result.innerHTML =
+                "🧠 AI model is still loading.";
+
+            return;
+        }
+
 
         result.innerHTML =
-            "⚠️ Please upload a leaf image first.";
+            "🔍 <b>Analyzing your plant...</b>";
 
-        return;
-    }
 
-    if (!model) {
+        try {
 
-        result.innerHTML =
-            "🧠 AI model is still loading.";
+            const prediction =
+                await model.predict(preview);
 
-        return;
-    }
 
-    result.innerHTML =
-        "🔍 <b>Analyzing your plant...</b>";
+            /* Find highest prediction */
 
-    try {
+            let highestPrediction =
+                prediction[0];
 
-        const prediction = await model.predict(preview);
 
-        let highestPrediction = prediction[0];
-
-        for (let i = 1; i < prediction.length; i++) {
-
-            if (
-                prediction[i].probability >
-                highestPrediction.probability
+            for (
+                let i = 1;
+                i < prediction.length;
+                i++
             ) {
 
-                highestPrediction = prediction[i];
+                if (
+                    prediction[i].probability >
+                    highestPrediction.probability
+                ) {
+
+                    highestPrediction =
+                        prediction[i];
+                }
             }
-        }
-
-        const disease = highestPrediction.className;
-
-        const confidence =
-            (highestPrediction.probability * 100).toFixed(1);
-
-        /*
-        Convert the model's class name to lowercase
-        so "Downy Mildew", "DOWNY MILDEW", etc. all work.
-        */
-
-        const diseaseKey = disease.trim().toLowerCase();
-
-        const info = diseaseInfo[diseaseKey];
 
 
-        /* =========================
-           MAIN RESULT
-        ========================= */
-
-        let output = `
-
-            <div class="diagnosis">
-                ${info ? info.icon : "🌱"} ${disease}
-            </div>
-
-            <div class="confidence">
-                Confidence: <b>${confidence}%</b>
-            </div>
-
-        `;
+            const disease =
+                highestPrediction.className;
 
 
-        /* =========================
-           TREATMENT + PREVENTION
-        ========================= */
+            const confidence =
+                (
+                    highestPrediction.probability * 100
+                ).toFixed(1);
 
-        if (info) {
 
-            output += `
+            /* Find matching advice */
 
-                <div class="advice">
+            const diseaseKey =
+                getDiseaseKey(disease);
 
-                    <h3>💊 What to do</h3>
 
-                    <p>
-                        ${info.treatment}
-                    </p>
+            const info =
+                diseaseInfo[diseaseKey];
 
-                    <h3>🛡️ Prevention</h3>
 
-                    <p>
-                        ${info.prevention}
-                    </p>
+            /* =====================================
+               DIAGNOSIS
+            ===================================== */
+
+            let output = `
+
+                <div class="diagnosis">
+
+                    ${info ? info.icon : "🌱"}
+
+                    ${disease}
+
+                </div>
+
+
+                <div class="confidence">
+
+                    Confidence:
+
+                    <b>${confidence}%</b>
 
                 </div>
 
             `;
 
-        } else {
+
+            /* =====================================
+               TREATMENT + PREVENTION
+            ===================================== */
+
+            if (info) {
+
+                output += `
+
+                    <div class="advice">
+
+                        <h3>💊 What to do</h3>
+
+                        <p>
+                            ${info.treatment}
+                        </p>
+
+
+                        <h3>🛡️ Prevention</h3>
+
+                        <p>
+                            ${info.prevention}
+                        </p>
+
+                    </div>
+
+                `;
+
+            } else {
+
+                output += `
+
+                    <div class="advice">
+
+                        <h3>💊 What to do</h3>
+
+                        <p>
+                            Please consult a plant specialist
+                            for further diagnosis and treatment.
+                        </p>
+
+
+                        <h3>🛡️ Prevention</h3>
+
+                        <p>
+                            Keep the plant healthy and monitor
+                            the leaves regularly for changes.
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+
+            /* =====================================
+               ALL PREDICTIONS
+            ===================================== */
 
             output += `
-
-                <div class="advice">
-
-                    <h3>💊 What to do</h3>
-
-                    <p>
-                        Please consult a plant specialist
-                        for treatment recommendations.
-                    </p>
-
-                    <h3>🛡️ Prevention</h3>
-
-                    <p>
-                        Keep the plant healthy and monitor
-                        the leaves regularly for changes.
-                    </p>
-
-                </div>
-
-            `;
-        }
-
-
-        /* =========================
-           ALL PREDICTIONS
-        ========================= */
-
-        output += `
-
-            <br>
-
-            <details>
-
-                <summary>
-                    📊 View all AI predictions
-                </summary>
 
                 <br>
-        `;
+
+                <details>
+
+                    <summary>
+                        📊 View all AI predictions
+                    </summary>
+
+                    <br>
+
+            `;
 
 
-        for (let i = 0; i < prediction.length; i++) {
+            for (
+                let i = 0;
+                i < prediction.length;
+                i++
+            ) {
 
-            const name = prediction[i].className;
+                const name =
+                    prediction[i].className;
 
-            const percentage =
-                (prediction[i].probability * 100).toFixed(1);
+
+                const percentage =
+                    (
+                        prediction[i].probability * 100
+                    ).toFixed(1);
+
+
+                output += `
+
+                    ${name}:
+                    <b>${percentage}%</b>
+
+                    <br>
+
+                `;
+            }
+
 
             output += `
-                ${name}: <b>${percentage}%</b><br>
+
+                </details>
+
             `;
+
+
+            result.innerHTML = output;
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            result.innerHTML =
+                "❌ Error analyzing image.";
         }
 
-
-        output += `
-
-            </details>
-
-        `;
-
-
-        result.innerHTML = output;
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        result.innerHTML =
-            "❌ Error analyzing image.";
     }
+);
 
-});
 
-
-/* =========================
-   START MODEL
-========================= */
+/* =========================================
+   START
+========================================= */
 
 loadModel();
