@@ -1,69 +1,42 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Plant Doctor</title>
 
+    <!-- Main stylesheet -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- TensorFlow.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-
-    <!-- Teachable Machine -->
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e7d32">
 </head>
 
 <body>
 
-    <div class="container">
+    <main class="app-container">
 
         <h1>🌱 Plant Doctor</h1>
 
         <p class="subtitle">
-            Detect plant diseases using AI
+            Take a picture of your plant leaf and let AI check its health.
         </p>
 
-
-        <!-- =====================================
-             IMAGE PREVIEW
-        ====================================== -->
-
+        <!-- Image Preview -->
         <div class="preview-container">
-
-            <img
-                id="preview"
-                alt="Selected leaf"
-            >
-
+            <img id="preview" alt="Selected leaf">
         </div>
 
-
-        <!-- =====================================
-             CAMERA BUTTON
-        ====================================== -->
-
-        <button
-            id="cameraButton"
-            class="upload-button"
-            type="button"
-        >
+        <!-- Camera Button -->
+        <button id="cameraButton" class="upload-button" type="button">
             📷 Take a Picture
         </button>
 
-
-        <!-- =====================================
-             FILE UPLOAD
-        ====================================== -->
-
-        <label
-            for="imageInput"
-            class="upload-button"
-        >
+        <!-- Upload Button -->
+        <label for="imageInput" class="upload-button">
             📁 Upload File
         </label>
 
@@ -74,96 +47,48 @@
             hidden
         >
 
-
-        <!-- =====================================
-             ANALYZE BUTTON
-        ====================================== -->
-
-        <button
-            id="analyzeButton"
-            type="button"
-            disabled
-        >
+        <!-- Analyze Button -->
+        <button id="analyzeButton" type="button" disabled>
             🔍 Analyze Leaf
         </button>
 
-
-        <!-- =====================================
-             LOADING
-        ====================================== -->
-
-        <p
-            id="loading"
-            style="display:none;"
-        >
-            🤖 AI is analyzing your leaf...
+        <!-- Loading -->
+        <p id="loading" style="display: none;">
+            🌿 Analyzing your leaf...
         </p>
 
+        <!-- Results -->
+        <section id="result" style="display: none;">
 
-        <!-- =====================================
-             RESULTS
-        ====================================== -->
+            <h2>🩺 Diagnosis</h2>
 
-        <div
-            id="result"
-            style="display:none;"
-        >
+            <h3 id="disease"></h3>
 
-            <h2>🌿 Result</h2>
+            <p id="confidence"></p>
 
-            <h3 id="disease">-</h3>
-
-            <p>
-                <strong>Confidence:</strong>
-                <span id="confidence">-</span>
-            </p>
-
-
-            <div class="advice-box">
-
+            <div class="advice-card">
                 <h3>💊 Treatment</h3>
-
-                <p id="treatment">
-                    -
-                </p>
-
+                <p id="treatment"></p>
             </div>
 
-
-            <div class="advice-box">
-
+            <div class="advice-card">
                 <h3>🛡️ Prevention</h3>
-
-                <p id="prevention">
-                    -
-                </p>
-
+                <p id="prevention"></p>
             </div>
 
-        </div>
+        </section>
 
-    </div>
+    </main>
 
 
-    <!-- =====================================
-         CAMERA MODAL
-    ====================================== -->
+    <!-- ========================= -->
+    <!-- CAMERA MODAL -->
+    <!-- ========================= -->
 
-    <div
-        id="cameraModal"
-        class="camera-modal"
-    >
+    <div id="cameraModal" class="camera-modal">
 
         <div class="camera-box">
 
-            <h2>📷 Take a Picture</h2>
-
-            <p>
-                Position the leaf inside the camera.
-            </p>
-
-
-            <!-- Live camera -->
             <video
                 id="cameraVideo"
                 autoplay
@@ -171,8 +96,7 @@
                 muted
             ></video>
 
-
-            <!-- Camera controls -->
+            <canvas id="cameraCanvas" hidden></canvas>
 
             <div class="camera-controls">
 
@@ -180,9 +104,8 @@
                     id="captureButton"
                     type="button"
                 >
-                    📸 Capture Photo
+                    📸 Capture
                 </button>
-
 
                 <button
                     id="switchCameraButton"
@@ -190,7 +113,6 @@
                 >
                     🔄 Switch Camera
                 </button>
-
 
                 <button
                     id="closeCameraButton"
@@ -206,15 +128,13 @@
     </div>
 
 
-    <!-- Hidden canvas used to capture the photo -->
-    <canvas
-        id="cameraCanvas"
-        style="display:none;"
-    ></canvas>
+    <!-- ========================= -->
+    <!-- TENSORFLOW + TEACHABLE MACHINE -->
+    <!-- ========================= -->
 
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
-</body>
-
-</html>
+    <!-- Your JavaScript -->
+```
