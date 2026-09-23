@@ -1,12 +1,18 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Plant Doctor</title>
 
     <link rel="stylesheet" href="style.css">
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+
+    <!-- Teachable Machine Image -->
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 </head>
 
 <body>
@@ -15,38 +21,78 @@
 
         <h1>🌱 Plant Doctor</h1>
 
-        <p>
-            Upload a picture of a plant leaf to check for diseases.
+        <p class="subtitle">
+            Detect plant diseases using AI
         </p>
+
+        <!-- Image preview -->
+        <div class="preview-container">
+            <img id="preview" alt="Leaf preview">
+        </div>
+
+        <!-- Camera -->
+        <label for="cameraInput" class="upload-button">
+            📷 Take a Picture
+        </label>
+
+        <input
+            type="file"
+            id="cameraInput"
+            accept="image/*"
+            capture="environment"
+            hidden
+        >
+
+        <!-- File upload -->
+        <label for="imageInput" class="upload-button">
+            📁 Upload File
+        </label>
 
         <input
             type="file"
             id="imageInput"
             accept="image/*"
+            hidden
         >
 
-        <br><br>
-
-        <img
-            id="preview"
-            width="300"
-        >
-
-        <br><br>
-
-        <button id="analyzeButton">
-            🔍 Analyze Plant
+        <!-- Analyze -->
+        <button id="analyzeButton" disabled>
+            🔍 Analyze Leaf
         </button>
 
-        <div id="result"></div>
+        <!-- Loading -->
+        <p id="loading" style="display:none;">
+            🤖 AI is analyzing your leaf...
+        </p>
+
+        <!-- Results -->
+        <div id="result" style="display:none;">
+
+            <h2>🌿 Result</h2>
+
+            <h3 id="disease">-</h3>
+
+            <p>
+                <strong>Confidence:</strong>
+                <span id="confidence">-</span>
+            </p>
+
+            <div class="advice-box">
+                <h3>💊 Treatment</h3>
+                <p id="treatment">-</p>
+            </div>
+
+            <div class="advice-box">
+                <h3>🛡️ Prevention</h3>
+                <p id="prevention">-</p>
+            </div>
+
+        </div>
 
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
     <script src="script.js"></script>
 
 </body>
 </html>
+```
