@@ -1,20 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Plant Doctor</title>
 
-    <title>Plant Doctor 🌱</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -24,50 +16,20 @@
         <h1>🌱 Plant Doctor</h1>
 
         <p>
-            Take a picture or choose a picture of a plant leaf
-            to check for diseases.
+            Upload a picture of a plant leaf to check for diseases.
         </p>
 
-        <div class="upload-options">
+        <input
+            type="file"
+            id="imageInput"
+            accept="image/*"
+        >
 
-            <label
-                for="cameraInput"
-                class="upload-button"
-            >
-                📷 Take a Picture
-            </label>
-
-            <input
-                type="file"
-                id="cameraInput"
-                accept="image/*"
-                capture="environment"
-                hidden
-            >
-
-            <label
-                for="galleryInput"
-                class="upload-button"
-            >
-                🖼️ Choose from Gallery
-            </label>
-
-            <input
-                type="file"
-                id="galleryInput"
-                accept="image/*"
-                hidden
-            >
-
-        </div>
-
-        <br>
+        <br><br>
 
         <img
             id="preview"
             width="300"
-            alt="Selected plant"
-            style="display: none;"
         >
 
         <br><br>
@@ -76,22 +38,15 @@
             🔍 Analyze Plant
         </button>
 
-        <div id="result">
-            ⏳ Loading Plant Doctor AI...
-        </div>
+        <div id="result"></div>
 
     </div>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
     <script src="script.js"></script>
 
 </body>
-
 </html>
